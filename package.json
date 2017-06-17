@@ -5,6 +5,7 @@
   "bin": "index.js",
   "dependencies": {
     "fs-extra": "^3.0.1",
+    "sqlite": "^2.8.0",
     "yargs": "^8.0.2"
   },
   "devDependencies": {},
