@@ -4,7 +4,9 @@
   "description": "",
   "bin": "index.js",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.1",
     "fs-extra": "^3.0.1",
+    "safe-get": "^1.0.6",
     "sqlite": "^2.8.0",
     "yargs": "^8.0.2"
   },

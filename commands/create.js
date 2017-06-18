@@ -1,7 +1,7 @@
 const db = require('sqlite');
 const fs = require('fs-extra');
 
-module.exports = (argv) => {
+module.exports = async (argv) => {
   const {directory, filename, verbose} = argv;
   if (verbose) {
     console.info(`caching results html in ${directory}`);
@@ -13,37 +13,36 @@ module.exports = (argv) => {
     console.info(`creating db in ${fp}`);
   }
 
-  Promise.resolve()
-    // First, open the database
-    .then(() => db.open(fp, { Promise }))
-    // Then drop and create the tables
-    .then(async () => {
-      await Promise.all([
-        db.run(`DROP TABLE IF EXISTS teams`),
-        db.run(`DROP TABLE IF EXISTS matches`),
-        db.run(`DROP TABLE IF EXISTS competitions`),
-      ]);
-      await Promise.all([
-        db.run(`CREATE TABLE teams (
-          teamid INTEGER PRIMARY KEY AUTOINCREMENT,
-          teamname TEXT
-        )`),
-        db.run(`CREATE TABLE competitions (
-          competitionid INTEGER PRIMARY KEY AUTOINCREMENT,
-          competitionname TEXT
-        )`),
-        db.run(`CREATE TABLE matches (
-          matchid INTEGER PRIMARY KEY AUTOINCREMENT,
-          hometeam INTEGER,
-          awayteam INTEGER,
-          matchcompetition INTEGER,
-          homegoals INTEGER,
-          awaygoals INTEGER,
-          FOREIGN KEY(hometeam) REFERENCES teams(teamid),
-          FOREIGN KEY(awayteam) REFERENCES teams(teamid),
-          FOREIGN KEY(matchcompetition) REFERENCES competitions(competitionid)
-        )`),
-      ]);
-    })
-    .catch(err => console.error(err.stack));
+  await db.open(fp, { Promise });
+  await Promise.all([
+    db.run(`DROP TABLE IF EXISTS teams`),
+    db.run(`DROP TABLE IF EXISTS matches`),
+    db.run(`DROP TABLE IF EXISTS competitions`),
+  ]);
+  await Promise.all([
+    db.run(`CREATE TABLE teams (
+      teamid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      teamname TEXT NOT NULL,
+      location TEXT NOT NULL,
+      abbreviation TEXT NOT NULL
+    )`),
+    db.run(`CREATE TABLE competitions (
+      competitionid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      competitionname TEXT NOT NULL,
+      k INTEGER NOT NULL,
+      m INTEGER NOT NULL
+    )`),
+    db.run(`CREATE TABLE matches (
+      matchid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      hometeam INTEGER NOT NULL,
+      awayteam INTEGER NOT NULL,
+      matchcompetition INTEGER NOT NULL,
+      homegoals INTEGER NOT NULL,
+      awaygoals INTEGER NOT NULL,
+      date INTEGER NOT NULL,
+      FOREIGN KEY(hometeam) REFERENCES teams(teamid),
+      FOREIGN KEY(awayteam) REFERENCES teams(teamid),
+      FOREIGN KEY(matchcompetition) REFERENCES competitions(competitionid)
+    );`).then(() => db.run(`CREATE UNIQUE INDEX idx_uniquematches ON matches(hometeam, awayteam, date);`)),
+  ]);
 }

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-const data = require('./commands/data');
-const create = require('./commands/create');
+const dataCommand = require('./commands/data');
+const createCommand = require('./commands/create');
+const importCommand = require('./commands/import');
 
 process.on('unhandledRejection', (reason) => {
     console.log('Reason: ' + reason);
@@ -16,13 +17,23 @@ const yargs = require('yargs') // eslint-disable-line
       describe: 'file to use as the database file',
       default: 'database.sqlite'
     })
-  }, create)
-  .command('data', 'cache data', (yargs) => {
+  }, createCommand)
+  .command('data', 'create the database', (yargs) => {
     yargs.option('directory', {
       describe: 'directory to cache data in',
       default: '.cached'
     })
-  }, data)
+  }, dataCommand)
+  .command('import', 'import data', (yargs) => {
+    yargs.option('dbPath', {
+      describe: 'database to import the data into',
+      default: '.cached/database.sqlite'
+    })
+    .option('directory', {
+      describe: 'directory the data is found in',
+      default: '.cached'
+    })
+  }, importCommand)
   .option('verbose', {
     alias: 'v',
     default: false
