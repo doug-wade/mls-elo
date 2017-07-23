@@ -18,6 +18,7 @@ module.exports = async (argv) => {
     db.run(`DROP TABLE IF EXISTS teams`),
     db.run(`DROP TABLE IF EXISTS matches`),
     db.run(`DROP TABLE IF EXISTS competitions`),
+    db.run(`DROP TABLE IF EXISTS rankings`),
   ]);
   await Promise.all([
     db.run(`CREATE TABLE teams (
@@ -44,5 +45,11 @@ module.exports = async (argv) => {
       FOREIGN KEY(awayteam) REFERENCES teams(teamid),
       FOREIGN KEY(matchcompetition) REFERENCES competitions(competitionid)
     );`).then(() => db.run(`CREATE UNIQUE INDEX idx_uniquematches ON matches(hometeam, awayteam, date);`)),
+    db.run(`CREATE TABLE rankings (
+      rankingteamid INTEGER NOT NULL,
+      elo INTEGER NOT NULL,
+      date INTEGER NOT NULL,
+      FOREIGN KEY(rankingteamid) REFERENCES teams(teamid)
+    );`).then(() => db.run(`CREATE UNIQUE INDEX idx_uniquerankings ON rankings(rankingteamid, date);`)),
   ]);
 }
