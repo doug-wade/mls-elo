@@ -1,7 +1,7 @@
 {
   "name": "mls-elo",
   "version": "0.0.1",
-  "description": "",
+  "description": "Calculate ELO rankings for Major League Soccer",
   "bin": "index.js",
   "dependencies": {
     "cheerio": "^1.0.0-rc.1",
@@ -14,7 +14,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["soccer", "MLS", "ELO"],
   "author": "Doug Wade <douglas.b.wade@gmail.com>",
   "license": "MIT"
 }

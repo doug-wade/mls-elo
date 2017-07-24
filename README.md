@@ -34,13 +34,10 @@ Standings as of 2017-7-22
 
 ## Getting started
 
-To make the cli available
+To install mls-elo, use [npm](https://npmjs.com)
 
 ```sh
-$ git clone https://github.com/doug-wade/mls-elo
-$ cd mls-elo
-$ npm i
-$ npm link .
+$ npm i -g mls-elo
 ```
 
 Once the cli is available, bootstrap the database
