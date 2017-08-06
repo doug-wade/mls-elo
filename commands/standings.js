@@ -26,7 +26,7 @@ module.exports = async (argv) => {
       FROM rankings
       WHERE rankings.rankingteamid = teams.teamid
     )
-    AND teams.abbreviation NOT IN ('MIA', 'CHV', 'TBM')
+    AND teams.dissolved IS NULL
     ORDER BY elo DESC
   `);
 

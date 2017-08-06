@@ -14,8 +14,8 @@ module.exports = async (argv) => {
   }
   await db.open(dbPath, { Promise });
 
-  const teamsStatement = `INSERT INTO teams (teamname, abbreviation, location) VALUES ${
-    teams.reduce((acc, val) => `${acc} ("${val.name}", "${val.abbreviation}", "${val.location}"),`, '').slice(0, -1)
+  const teamsStatement = `INSERT INTO teams (teamname, abbreviation, location, start, end, founded, dissolved) VALUES ${
+    teams.reduce((acc, val) => `${acc} ("${val.name}", "${val.abbreviation}", "${val.location}", ${val.start}, ${val.end}, ${(new Date(val.founded)).getTime()}, ${val.dissolved ? (new Date(val.dissolved)).getTime() : val.dissolved}),`, '').slice(0, -1)
   }`;
   const competitionsStatement = `INSERT INTO competitions (competitionname, k, m) VALUES ${
     competitions.reduce((acc, val) => `${acc} ("${val.name}", ${val.k}, ${val.m}),`, '').slice(0, -1)

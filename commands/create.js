@@ -26,7 +26,11 @@ module.exports = async (argv) => {
       teamid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
       teamname TEXT NOT NULL,
       location TEXT NOT NULL,
-      abbreviation TEXT NOT NULL
+      abbreviation TEXT NOT NULL,
+      start INTEGER NOT NULL,
+      end INTEGER,
+      founded INTEGER NOT NULL,
+      dissolved INTEGER
     )`),
     db.run(`CREATE TABLE competitions (
       competitionid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
