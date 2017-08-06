@@ -61,5 +61,14 @@ module.exports = async (argv) => {
       date INTEGER NOT NULL,
       FOREIGN KEY(rankingteamid) REFERENCES teams(teamid)
     );`).then(() => db.run(`CREATE UNIQUE INDEX idx_uniquerankings ON rankings(rankingteamid, date);`)),
+    db.run(`CREATE TABLE players (
+      playerid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      valuationteamid INTEGER NOT NULL,
+      year INTEGER NOT NULL,
+      value REAL NOT NULL,
+      revenue REAL NOT NULL,
+      income REAL NOT NULL,
+      FOREIGN KEY(valuationteamid) REFERENCES teams(teamid)
+    );`).then(() => db.run(`CREATE UNIQUE INDEX idx_uniquevaluations ON valuations(valuationteamid, year);`)),
   ]);
 }

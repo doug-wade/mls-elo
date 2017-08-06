@@ -22,4 +22,29 @@ module.exports = (argv) => {
       });
     });
   }
+
+  // The pages end condition is manually maintained, and comes from the url param
+  // page found when clicking the "last" button on https://www.mlssoccer.com/players
+  for (let page = 0; page <= 20; page++) {
+    const playerListPageFilename = `players-page-${page}.html`;
+    const playerListPageUrl = `https://www.mlssoccer.com/players?page=${page}`;
+    if (verbose) {
+      console.info(`fetching player list page ${page} from url ${playerListPageUrl} and writing to ${playerListPageFilename}`);
+    }
+
+    const stream = fs.createWriteStream(playerListPageFilename);
+    https.get(playerListPageUrl, (res) => {
+      res.on('data', (d) => {
+        stream.write(d);
+      });
+
+      res.on('end', () => {
+        importPlayers(playerListPageFilename);
+      });
+    });
+  }
+}
+
+function importPlayers(filename) {
+  console.log(`importing players from ${filename}`);
 }
