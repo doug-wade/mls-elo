@@ -6,6 +6,7 @@ const importCommand = require('./commands/import');
 const rankCommand = require('./commands/rank');
 const standingsCommand = require('./commands/standings');
 const predictCommand = require('./commands/predict');
+const queryCommand = require('./commands/query');
 
 process.on('unhandledRejection', (reason) => {
     console.log('Reason: ' + reason);
@@ -66,6 +67,16 @@ const yargs = require('yargs') // eslint-disable-line
       default: '~/Documents/database.sqlite'
     })
   }, backupCommand)
+  .command('query', 'run an arbitrary query against the database', (yargs) => {
+    yargs.option('dbPath', {
+      describe: 'location of database to backup',
+      default: '.cached/database.sqlite'
+    })
+    .option('query', {
+      describe: 'the query to run'
+    })
+    .demandOption('query', 'please provide a query to run')
+  }, queryCommand)
   .option('verbose', {
     alias: 'v',
     default: false

@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const safeGet = require ('safe-get');
 const competitions = require('../data/competitions');
 const teams = require('../data/teams');
+const valuations = require('../data/valuations');
 
 module.exports = async (argv) => {
   const {dbPath, directory, verbose} = argv;
@@ -62,4 +63,22 @@ module.exports = async (argv) => {
       });
     });
   }
+
+  const valuationPromises = [];
+  Object.keys(valuations).forEach(year => {
+    valuations[year].forEach(team => {
+      const insertStatement = `INSERT INTO valuations (valuationteamid, value, revenue, income, year) VALUES (
+        (SELECT teamid FROM teams where teamname = "${team.teamname}"),
+        ${team.value},
+        ${team.revenue},
+        ${team.income},
+        ${year}
+      )`;
+      if (verbose) {
+        console.log(insertStatement);
+      }
+      valuationPromises.push(db.run(insertStatement));
+    });
+  });
+  await Promise.all(valuationPromises);
 };
