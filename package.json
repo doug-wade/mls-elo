@@ -8,13 +8,19 @@
     "fs-extra": "^3.0.1",
     "safe-get": "^1.0.6",
     "sqlite": "^2.8.0",
+    "untildify": "^3.0.2",
     "yargs": "^8.0.2"
   },
   "devDependencies": {},
   "scripts": {
+    "etl": "node ./index.js create && node ./index.js data && node ./index.js import && node ./index.js rank",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["soccer", "MLS", "ELO"],
+  "keywords": [
+    "soccer",
+    "MLS",
+    "ELO"
+  ],
   "author": "Doug Wade <douglas.b.wade@gmail.com>",
   "license": "MIT"
 }

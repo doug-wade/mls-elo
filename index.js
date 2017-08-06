@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const backupCommand = require('./commands/backup');
 const dataCommand = require('./commands/data');
 const createCommand = require('./commands/create');
 const importCommand = require('./commands/import');
@@ -55,6 +56,16 @@ const yargs = require('yargs') // eslint-disable-line
       default: '.cached/database.sqlite'
     })
   }, predictCommand)
+  .command('backup', 'backup the database', (yargs) => {
+    yargs.option('dbPath', {
+      describe: 'location of database to backup',
+      default: '.cached/database.sqlite'
+    })
+    .option('to', {
+      describe: 'to where to backup the database',
+      default: '~/Documents/database.sqlite'
+    })
+  }, backupCommand)
   .option('verbose', {
     alias: 'v',
     default: false
