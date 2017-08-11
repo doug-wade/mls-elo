@@ -31,6 +31,7 @@ module.exports = async (argv) => {
       matches.date as date
     from matches
     inner join competitions on competitions.competitionid = matches.matchcompetition
+    where matches.homegoals is not null
     order by date ASC
   `);
   console.log(`processing ${matches.length} matches`);

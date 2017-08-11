@@ -29,7 +29,9 @@ module.exports = async (argv) => {
     db.run(teamsStatement),
   ]);
   for (let year = 1996; year <= 2017; year++) {
-    console.log(`reading files from ${directory}/${year}.html`);
+    if (verbose) {
+      console.log(`reading files from ${directory}/${year}.html`);
+    }
     const $ = cheerio.load(await fs.readFile(`${directory}/${year}.html`));
     $('#center_content > div.ct_wrapper > div.results-map > div.scroll-container > table > tbody > tr').each((i, row) => {
       if (i === 0) {
@@ -38,26 +40,76 @@ module.exports = async (argv) => {
       const th = $(`#center_content > div.ct_wrapper > div.results-map > table > tbody > tr:nth-child(${i+1}) > th`);
       const abbreviation = th[0].children[0].data;
       const team = teams.reduce((team, acc) => team.abbreviation === abbreviation ? team : acc, []);
-      console.log(`${abbreviation} ${team.name}`);
-      row.children.forEach(child => {
-        const dateStr = safeGet(child, 'children[3].children[1].children[3].children[1].children[0].data');
-        const opponent = safeGet(child, 'children[3].children[1].children[3].children[3].children[0].data');
-        const scoreline = safeGet(child, 'children[3].children[1].children[3].children[5].children[0].data');
-        const date = (new Date(`${dateStr} ${year}`)).getTime();
+      if (verbose) {
+        console.log(`${abbreviation} ${team.name}`);
+      }
+      row.children.forEach(async child => {
+        if (!(child.children)) {
+          return;
+        }
+        let dateStr = safeGet(child, 'children[3].children[1].children[3].children[1].children[0].data');
+        let opponent = safeGet(child, 'children[3].children[1].children[3].children[3].children[0].data');
+        let scoreline = safeGet(child, 'children[3].children[1].children[3].children[5].children[0].data');
+        let date = (new Date(`${dateStr} ${year}`)).getTime();
 
         if (date && opponent && scoreline) {
-          console.log(`${date}, ${team.name} ${opponent}, ${scoreline}`);
+          if (verbose) {
+            console.log(`played: ${date}, ${team.name} ${opponent}, ${scoreline}`);
+          }
           const [goals, opponentGoals] = scoreline.split('-');
           if (opponent.includes('at ')) {
             const location = opponent.replace('at ', '');
-            db.run(`INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date) VALUES (
-              (SELECT teamid FROM teams where location = "${location}"),
-              (SELECT teamid FROM teams where abbreviation = "${abbreviation}"),
-              (SELECT competitionid FROM competitions where competitionname = "${competitions[3].name}"),
-              ${goals},
-              ${opponentGoals},
-              ${date}
-            )`);
+            const q = `
+              SELECT matchid
+              FROM matches
+              WHERE hometeam = (SELECT teamid FROM teams where location = "${location}")
+              AND awayteam = (SELECT teamid FROM teams where abbreviation = "${abbreviation}")
+              AND date = ${date}
+              AND matchcompetition = (SELECT competitionid FROM competitions where competitionname = "${competitions[3].name}");
+            `;
+            const results = await db.get(q);
+            if (results && results.matchid) {
+              if (verbose) {
+                console.log(`Updating existing match with id ${matchid}`);
+              }
+              db.run(`
+                UPDATE matches
+                SET homegoals = ${goals}, awaygoals = ${opponentGoals}
+                WHERE matchs.matchid = ${results.matchid}
+              )`);
+            } else {
+              db.run(`
+                INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date) VALUES (
+                (SELECT teamid FROM teams where location = "${location}"),
+                (SELECT teamid FROM teams where abbreviation = "${abbreviation}"),
+                (SELECT competitionid FROM competitions where competitionname = "${competitions[3].name}"),
+                ${goals},
+                ${opponentGoals},
+                ${date}
+              )`);
+            }
+          }
+        } else {
+          dateStr = safeGet(child, 'children[3].children[3].children[1].children[0].data');
+          opponent = safeGet(child, 'children[3].children[3].children[3].children[0].data');
+          scoreline = safeGet(child, 'children[3].children[3].children[5].children[0].data');
+          date = (new Date(`${dateStr} ${year}`)).getTime();
+
+          if (verbose) {
+            console.log(`scheduled: ${date} ${opponent} ${year} ${scoreline}`);
+          }
+
+          if (opponent.includes('at ')) {
+            const location = opponent.replace('at ', '');
+            db.run(`
+              INSERT INTO matches (hometeam, awayteam, matchcompetition, date)
+              VALUES (
+                (SELECT teamid FROM teams where location = "${location}"),
+                (SELECT teamid FROM teams where abbreviation = "${abbreviation}"),
+                (SELECT competitionid FROM competitions where competitionname = "${competitions[3].name}"),
+                ${date}
+              )
+            `);
           }
         }
       });
@@ -67,13 +119,16 @@ module.exports = async (argv) => {
   const valuationPromises = [];
   Object.keys(valuations).forEach(year => {
     valuations[year].forEach(team => {
-      const insertStatement = `INSERT INTO valuations (valuationteamid, value, revenue, income, year) VALUES (
-        (SELECT teamid FROM teams where teamname = "${team.teamname}"),
-        ${team.value},
-        ${team.revenue},
-        ${team.income},
-        ${year}
-      )`;
+      const insertStatement = `
+        INSERT INTO valuations (valuationteamid, value, revenue, income, year)
+        VALUES (
+          (SELECT teamid FROM teams where teamname = "${team.teamname}"),
+          ${team.value},
+          ${team.revenue},
+          ${team.income},
+          ${year}
+        );
+      `;
       if (verbose) {
         console.log(insertStatement);
       }

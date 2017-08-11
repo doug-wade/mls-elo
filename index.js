@@ -13,7 +13,7 @@ process.on('unhandledRejection', (reason) => {
 });
 
 const yargs = require('yargs') // eslint-disable-line
-  .command('create', 'cache data', (yargs) => {
+  .command('create', 'create the database', (yargs) => {
     yargs.option('directory', {
       describe: 'directory to cache data in',
       default: '.cached'
@@ -23,7 +23,7 @@ const yargs = require('yargs') // eslint-disable-line
       default: 'database.sqlite'
     })
   }, createCommand)
-  .command('data', 'create the database', (yargs) => {
+  .command('data', 'cache data', (yargs) => {
     yargs.option('directory', {
       describe: 'directory to cache data in',
       default: '.cached'
@@ -39,7 +39,7 @@ const yargs = require('yargs') // eslint-disable-line
       default: '.cached'
     })
   }, importCommand)
-  .command('rank', 'import teams', (yargs) => {
+  .command('rank', 'rank teams', (yargs) => {
     yargs.option('dbPath', {
       describe: 'database to read team data from and write elo rankings to',
       default: '.cached/database.sqlite'
