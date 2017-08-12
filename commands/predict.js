@@ -13,17 +13,65 @@ module.exports = async (argv) => {
 
   // pop the command name
   _.shift();
-  let hometeam, awayteam;
-  if (_[1] === 'at') {
-    hometeam = _[2];
-    awayteam = _[0];
-  } else if (_[1] === 'vs') {
-    hometeam = _[0];
-    awayteam = _[2];
+  if (!_[1]) {
+    console.log(`Predicting from now until ${_[0]}`);
+    await predictMatchesByDate(_[0]);
   } else {
-    throw new Error(`Unrecognized conjunction ${_[1]}; please use "at" or "vs"`);
-  }
+    let hometeam, awayteam;
+    if (_[1] === 'at') {
+      hometeam = _[2];
+      awayteam = _[0];
+    } else if (_[1] === 'vs') {
+      hometeam = _[0];
+      awayteam = _[2];
+    } else {
+      throw new Error(`Unrecognized conjunction ${_[1]}; please use "at" or "vs"`);
+    }
 
+    await predictMatchByName(hometeam, awayteam);
+  }
+}
+
+async function predictMatchesByDate(date) {
+  const results = await db.all(`
+    WITH currentelo AS (
+      SELECT *
+      FROM rankings
+      INNER JOIN (
+        SELECT max(date) as maxDate, rankingteamid as teamid
+        FROM rankings
+        GROUP BY teamid
+      ) as dates
+      ON dates.teamid = rankings.rankingteamid
+      AND dates.maxDate = rankings.date
+    )
+    SELECT
+      awayteam.teamname as awayName,
+      away.elo as awayElo,
+      hometeam.teamname as homeName,
+      home.elo as homeElo
+    FROM matches
+    INNER JOIN currentelo as away
+    ON away.rankingteamid = matches.awayteam
+    INNER JOIN currentelo as home
+    on home.rankingteamid = matches.hometeam
+    INNER JOIN teams AS awayteam
+    ON awayteam.teamid = matches.awayteam
+    INNER JOIN teams AS hometeam
+    ON hometeam.teamid = matches.hometeam
+    WHERE matches.date <= ${(new Date(date)).getTime()}
+    AND matches.date >= ${(new Date()).getTime()}
+  `);
+
+  results.forEach(result => predictMatch({
+    homeElo: result.homeElo,
+    homeName: result.homeName,
+    awayElo: result.awayElo,
+    awayName: result.awayName
+  }));
+}
+
+async function predictMatchByName(hometeam, awayteam) {
   const homeTeamStanding = await db.get(`
     SELECT teamname, elo
     FROM rankings
@@ -50,9 +98,18 @@ module.exports = async (argv) => {
     ORDER BY elo DESC
   `);
 
-  if ((homeTeamStanding.elo + 100) > awayTeamStanding.elo) {
-    console.log(`I predict ${homeTeamStanding.teamname} will win.`);
+  predictMatch({
+    homeName: homeTeamStanding.teamname,
+    homeElo: homeTeamStanding.elo,
+    awayName: awayTeamStanding.teamname,
+    awayElo: awayTeamStanding.elo
+  });
+}
+
+function predictMatch({homeElo, awayElo, homeName, awayName}) {
+  if ((homeElo + 100) > awayElo) {
+    console.log(`I predict ${homeName} will win.`);
   } else {
-    console.log(`I predict ${awayTeamStanding.teamname} will win.`)
+    console.log(`I predict ${awayName} will win.`)
   }
 }
