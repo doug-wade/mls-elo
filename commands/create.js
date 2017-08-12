@@ -62,6 +62,8 @@ module.exports = async (argv) => {
     db.run(`CREATE TABLE rankings (
       rankingteamid INTEGER NOT NULL,
       elo INTEGER NOT NULL,
+      trueskillmu INTEGER NOT NULL,
+      trueskillsigma INTEGER NOT NULL,
       date INTEGER NOT NULL,
       FOREIGN KEY(rankingteamid) REFERENCES teams(teamid)
     );`).then(() => db.run(`CREATE UNIQUE INDEX idx_uniquerankings ON rankings(rankingteamid, date);`)),

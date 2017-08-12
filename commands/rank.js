@@ -1,5 +1,6 @@
 const db = require('sqlite');
 const fs = require('fs-extra');
+const trueskill = require('trueskill');
 const teams = require('../data/teams');
 const results = require('../data/results');
 
@@ -13,11 +14,15 @@ module.exports = async (argv) => {
 
   const startDate = new Date('December 11, 1973').getTime();
   const startElo = 1300;
-  console.log(`seeding table with start elo ${startElo} on date ${startDate}`);
+  const startTrueskillSigma = 25 / 3;
+  const startTrueskillMu = 25;
+  console.log(`seeding table with start elo ${startElo} and trueskill sigma: ${startTrueskillSigma} mu: ${startTrueskillMu} on date ${startDate}`);
   await Promise.all(teams.map(team => db.run(`
-    INSERT INTO rankings (rankingteamid, elo, date) VALUES (
+    INSERT INTO rankings (rankingteamid, elo, trueskillsigma, trueskillmu, date) VALUES (
       (SELECT teamid FROM teams WHERE teams.abbreviation = "${team.abbreviation}"),
       ${startElo},
+      ${startTrueskillSigma},
+      ${startTrueskillMu},
       ${startDate}
     )
   `)));
@@ -39,6 +44,8 @@ module.exports = async (argv) => {
     const awayranking = await db.get(`
       select
         rankings.elo,
+        rankings.trueskillmu,
+        rankings.trueskillsigma,
         rankings.date
       from rankings
       inner join (
@@ -55,6 +62,8 @@ module.exports = async (argv) => {
     const homeranking = await db.get(`
       select
         rankings.elo,
+        rankings.trueskillmu,
+        rankings.trueskillsigma,
         rankings.date
       from rankings
       inner join (
@@ -70,7 +79,7 @@ module.exports = async (argv) => {
     `);
     match.homeranking = homeranking.elo;
     match.awayranking = awayranking.elo;
-    let homeElo, awayElo;
+    let homeElo, awayElo, homeTrueskill, awayTrueskill;
     if (match.homegoals < match.awaygoals) {
       homeElo = updateElo({
         match,
@@ -82,6 +91,14 @@ module.exports = async (argv) => {
         won: true,
         isHome: false
       });
+      homeTrueskill = {
+        skill: [homeranking.trueskillmu, homeranking.trueskillsigma],
+        rank: 2,
+      };
+      awayTrueskill = {
+        skill: [awayranking.trueskillmu, awayranking.trueskillsigma],
+        rank: 1,
+      };
     } else if (match.homegoals === match.awaygoals) {
       homeElo = updateElo({
         match,
@@ -93,6 +110,14 @@ module.exports = async (argv) => {
         won: false,
         isHome: false
       });
+      homeTrueskill = {
+        skill: [homeranking.trueskillmu, homeranking.trueskillsigma],
+        rank: 2,
+      };
+      awayTrueskill = {
+        skill: [awayranking.trueskillmu, awayranking.trueskillsigma],
+        rank: 2,
+      };
     } else {
       homeElo = updateElo({
         match,
@@ -104,17 +129,30 @@ module.exports = async (argv) => {
         won: false,
         isHome: false
       });
+      homeTrueskill = {
+        skill: [homeranking.trueskillmu, homeranking.trueskillsigma],
+        rank: 1,
+      };
+      awayTrueskill = {
+        skill: [awayranking.trueskillmu, awayranking.trueskillsigma],
+        rank: 2,
+      };
     }
+    trueskill.AdjustPlayers([homeTrueskill, awayTrueskill]);
     await Promise.all([db.run(`
-        INSERT INTO rankings (elo, date, rankingteamid) VALUES (
+        INSERT INTO rankings (elo, trueskillsigma, trueskillmu, date, rankingteamid) VALUES (
           ${homeElo},
+          ${homeTrueskill.skill[1]},
+          ${homeTrueskill.skill[0]},
           ${match.date},
           ${match.hometeam}
         )
       `),
       db.run(`
-        INSERT INTO rankings (elo, date, rankingteamid) VALUES (
+        INSERT INTO rankings (elo, trueskillsigma, trueskillmu, date, rankingteamid) VALUES (
           ${awayElo},
+          ${homeTrueskill.skill[1]},
+          ${homeTrueskill.skill[0]},
           ${match.date},
           ${match.awayteam}
         )

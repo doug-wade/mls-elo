@@ -50,6 +50,14 @@ const yargs = require('yargs') // eslint-disable-line
       describe: 'database to read team data from and write elo rankings to',
       default: '.cached/database.sqlite'
     })
+    .option('elo', {
+      describe: 'whether to show the elo rankings',
+      default: true
+    })
+    .option('trueskill', {
+      describe: 'whether to show the trueskill rankings',
+      default: false
+    })
   }, standingsCommand)
   .command('predict', 'predict a single match', (yargs) => {
     yargs.option('dbPath', {
