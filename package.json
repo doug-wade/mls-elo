@@ -1,6 +1,6 @@
 {
   "name": "mls-elo",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Calculate ELO rankings for Major League Soccer",
   "bin": "index.js",
   "dependencies": {
