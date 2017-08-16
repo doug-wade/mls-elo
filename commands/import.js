@@ -29,8 +29,8 @@ async function loadCheckedInData(verbose) {
     competitions.reduce((acc, val) => `${acc} ("${val.name}", ${val.k}, ${val.m}),`, '').slice(0, -1)
   }`;
   if (verbose) {
-    console.log(teamsStatement);
-    console.log(competitionsStatement);
+    console.info(teamsStatement);
+    console.info(competitionsStatement);
   }
   await Promise.all([
     db.run(competitionsStatement),
@@ -51,7 +51,7 @@ async function loadCheckedInData(verbose) {
         );
       `;
       if (verbose) {
-        console.log(insertStatement);
+        console.info(insertStatement);
       }
       valuationPromises.push(db.run(insertStatement));
     });
@@ -62,7 +62,7 @@ async function loadCheckedInData(verbose) {
 async function loadFormData(verbose, directory) {
   for (let year = 1996; year <= 2017; year++) {
     if (verbose) {
-      console.log(`reading files from ${directory}/${year}.html`);
+      console.info(`reading files from ${directory}/${year}.html`);
     }
     const $ = cheerio.load(await fs.readFile(`${directory}/${year}.html`));
     $('#center_content > div.ct_wrapper > div.results-map > div.scroll-container > table > tbody > tr').each((i, row) => {
@@ -73,7 +73,7 @@ async function loadFormData(verbose, directory) {
       const abbreviation = th[0].children[0].data;
       const team = teams.reduce((team, acc) => team.abbreviation === abbreviation ? team : acc, []);
       if (verbose) {
-        console.log(`${abbreviation} ${team.name}`);
+        console.info(`${abbreviation} ${team.name}`);
       }
       row.children.forEach(async child => {
         if (!(child.children)) {
@@ -86,7 +86,7 @@ async function loadFormData(verbose, directory) {
 
         if (date && opponent && scoreline) {
           if (verbose) {
-            console.log(`played: ${date}, ${team.name} ${opponent}, ${scoreline}`);
+            console.info(`played: ${date}, ${team.name} ${opponent}, ${scoreline}`);
           }
           const [goals, opponentGoals] = scoreline.split('-');
           if (opponent.includes('at ')) {
@@ -102,7 +102,7 @@ async function loadFormData(verbose, directory) {
             const results = await db.get(q);
             if (results && results.matchid) {
               if (verbose) {
-                console.log(`Updating existing match with id ${matchid}`);
+                console.info(`Updating existing match with id ${matchid}`);
               }
               db.run(`
                 UPDATE matches
@@ -128,7 +128,7 @@ async function loadFormData(verbose, directory) {
           date = (new Date(`${dateStr} ${year}`)).getTime();
 
           if (verbose) {
-            console.log(`scheduled: ${date} ${opponent} ${year} ${scoreline}`);
+            console.info(`scheduled: ${date} ${opponent} ${year} ${scoreline}`);
           }
 
           if (opponent.includes('at ')) {
@@ -156,27 +156,21 @@ async function loadPlayerData(verbose) {
     const $ = cheerio.load(await fs.readFile(`.cached/players/${playerFile}`));
     const titleOverlay = $('div.title_overlay');
     const playerInfo = $('div.player_info_alternate');
-    console.log(`getting hometown for ${playerInfo.html()}`)
     const hometown =  playerInfo.find('.hometown').length > 0
       ? playerInfo.find('.hometown')[0].children[1].data.replace('\n', '')
       : null;
-    console.log(`hometown: ${hometown}`);
     const birthplace = playerInfo.find('.hometown').length > 1
       ? playerInfo.find('.hometown')[1].children[1].data.replace('\n', '')
       : null;
-    console.log(`birthplace: ${birthplace}`);
     const twitter = playerInfo.find('.twitter_handle').length > 0
       ? playerInfo.find('.twitter_handle')[0].children[0].children[0].data
       : null;
-    console.log(`twitter: ${twitter}`);
     const weight = playerInfo.find('.stat').length > 1
       ? playerInfo.find('.stat')[1].children[0].data
       : null;
-    console.log(`weight: ${weight}`);
     const jersey = titleOverlay.find('.jersey_container') && titleOverlay.find('.jersey_container').length > 0
       ? titleOverlay.find('.jersey_container')[0].children[0].children[0].data
       : null;
-    console.log(`jersey: ${jersey}`);
     const height = playerInfo.find('.stat') && playerInfo.find('.stat').length > 0
       ? heightToInches(playerInfo.find('.stat')[0].children[0].data)
       : null;
@@ -211,12 +205,9 @@ async function loadPlayerData(verbose) {
 
     // insert match stats
     $('div.gamelog_tables > table.no-more-tables > tbody > tr').each(async (i, row) => {
+      const result = safeGet(row, 'children[2].children[0].data');
       const scorelineStr = safeGet(row, 'children[1].children[0].data');
       const dateStr = safeGet(row, 'children[0].children[0].data');
-      if (!scorelineStr || !dateStr) {
-        console.log(`scorelineStr ${scorelineStr} dateStr ${dateStr}`);
-        return;
-      }
       const [awayteam, hometeam] = scorelineStr.split('@');
       const date = (new Date(dateStr)).getTime();
       const query = `
@@ -225,36 +216,46 @@ async function loadPlayerData(verbose) {
         WHERE date = ${date}
         AND hometeam = (SELECT teamid FROM teams WHERE abbreviation = "${hometeam.trim()}")
         AND awayteam = (SELECT teamid FROM teams WHERE abbreviation = "${awayteam.trim()}")`;
-      console.log(query);
-      const matchid = await db.get(query);
-      if (matchid) {
-        console.log(`playerid ${JSON.stringify(playerid)} matchid ${JSON.stringify(matchid)}`);
-        if (!row || !row.children) {
-          console.warn('we gon crash');
-        }
-        console.log(row.children.length);
+      let matchid = await db.get(query);
+      if (!matchid) {
+        // Player data includes MLS Cup statisitics, meaning we can extract mls
+        // cup matches from them!
+        debugger;
+        const [awaygoals, homegoals] = (result.split(' ')[1]).split('-');
         db.run(`
-          INSERT INTO playerMatchLog (playerid, matchid, result, appearance, minutes, goals, assists, shots, shotsongoal, foulscommitted, foulsssuffered, yellows, reds)
+          INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date)
           VALUES (
-            ${playerid.playerid},
-            ${matchid.matchid},
-            "${safeGet(row, 'children[2].children[0].data')}",
-            "${safeGet(row, 'children[3].children[0].data')}",
-            ${safeGet(row, 'children[4].children[0].data')},
-            ${safeGet(row, 'children[5].children[0].data')},
-            ${safeGet(row, 'children[6].children[0].data')},
-            ${safeGet(row, 'children[7].children[0].data')},
-            ${safeGet(row, 'children[8].children[0].data')},
-            ${safeGet(row, 'children[9].children[0].data')},
-            ${safeGet(row, 'children[10].children[0].data')},
-            ${safeGet(row, 'children[11].children[0].data')},
-            ${safeGet(row, 'children[12].children[0].data')}
+            (SELECT teamid FROM teams where abbreviation = "${hometeam.trim()}"),
+            (SELECT teamid FROM teams where abbreviation = "${awayteam.trim()}"),
+            (SELECT competitionid FROM competitions where competitionname = "${competitions[4].name}"),
+            ${homegoals},
+            ${awaygoals},
+            ${date}
           )
         `);
-      } else {
-        console.log(`no matchid for playerid ${playerid.playerid} date ${date} hometeam ${hometeam.trim()} awayteam ${awayteam.trim()}`);
-        // TODO: Insert MLS Cup matches
+        matchid = await db.get(query);
       }
+      if (verbose) {
+        console.info(`Processing player id ${JSON.stringify(playerid)} for match id ${JSON.stringify(matchid)}`);
+      }
+      db.run(`
+        INSERT INTO playerMatchLog (playerid, matchid, result, appearance, minutes, goals, assists, shots, shotsongoal, foulscommitted, foulsssuffered, yellows, reds)
+        VALUES (
+          ${playerid.playerid},
+          ${matchid.matchid},
+          "${result}",
+          "${safeGet(row, 'children[3].children[0].data')}",
+          ${safeGet(row, 'children[4].children[0].data')},
+          ${safeGet(row, 'children[5].children[0].data')},
+          ${safeGet(row, 'children[6].children[0].data')},
+          ${safeGet(row, 'children[7].children[0].data')},
+          ${safeGet(row, 'children[8].children[0].data')},
+          ${safeGet(row, 'children[9].children[0].data')},
+          ${safeGet(row, 'children[10].children[0].data')},
+          ${safeGet(row, 'children[11].children[0].data')},
+          ${safeGet(row, 'children[12].children[0].data')}
+        )
+      `);
     });
   }
 }
