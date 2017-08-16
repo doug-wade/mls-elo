@@ -20,6 +20,8 @@ module.exports = async (argv) => {
     db.run(`DROP TABLE IF EXISTS competitions`),
     db.run(`DROP TABLE IF EXISTS rankings`),
     db.run(`DROP TABLE IF EXISTS valuations`),
+    db.run(`DROP TABLE IF EXISTS players`),
+    db.run(`DROP TABLE IF EXISTS playerMatchLog`),
   ]);
   await Promise.all([
     db.run(`CREATE TABLE teams (
@@ -67,5 +69,36 @@ module.exports = async (argv) => {
       date INTEGER NOT NULL,
       FOREIGN KEY(rankingteamid) REFERENCES teams(teamid)
     );`).then(() => db.run(`CREATE UNIQUE INDEX idx_uniquerankings ON rankings(rankingteamid, date);`)),
+    db.run(`CREATE TABLE players (
+      playerid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      name TEXT NOT NULL,
+      realname TEXT NOT NULL,
+      height INTEGER,
+      weight INTEGER,
+      birthdate INTEGER NOT NULL,
+      birthplace TEXT,
+      hometown TEXT,
+      twitter TEXT,
+      position TEXT NOT NULL,
+      jersey INTEGER
+    );`),
+    db.run(`CREATE TABLE playerMatchLog (
+      playerid INTEGER NOT NULL,
+      matchid INTEGER NOT NULL,
+      result TEXT NOT NULL,
+      appearance TEXT NOT NULL,
+      minutes INTEGER NOT NULL,
+      goals INTEGER NOT NULL,
+      assists INTEGER NOT NULL,
+      shots INTEGER NOT NULL,
+      shotsongoal INTEGER NOT NULL,
+      foulscommitted INTEGER NOT NULL,
+      foulsssuffered INTEGER NOT NULL,
+      yellows INTEGER NOT NULL,
+      reds INTEGER NOT NULL,
+      FOREIGN KEY(playerid) REFERENCES players(playerid),
+      FOREIGN KEY(matchid) REFERENCES match(matchid),
+      PRIMARY KEY (playerid, matchid)
+    );`),
   ]);
 }

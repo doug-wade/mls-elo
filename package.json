@@ -12,11 +12,13 @@
     "untildify": "^3.0.2",
     "yargs": "^8.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "tap": "^10.7.2"
+  },
   "scripts": {
     "etl-no-network": "node ./index.js create --verbose && node ./index.js import --verbose && node ./index.js rank --verbose",
     "etl": "node ./index.js create && node ./index.js data && node ./index.js import && node ./index.js rank",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tap tst/*"
   },
   "keywords": [
     "soccer",
@@ -24,5 +26,6 @@
     "ELO"
   ],
   "author": "Doug Wade <douglas.b.wade@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": "https://github.com/doug-wade/mls-elo"
 }
