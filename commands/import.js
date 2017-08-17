@@ -174,6 +174,9 @@ async function loadPlayerData(verbose) {
     const height = playerInfo.find('.stat') && playerInfo.find('.stat').length > 0
       ? heightToInches(playerInfo.find('.stat')[0].children[0].data)
       : null;
+    const position = titleOverlay.find('.position') && titleOverlay.find('.position').length > 0
+      ? titleOverlay.find('.position')[0].children[0].data
+      : null;
     const insertQuery = `
       INSERT INTO players (name, realname, height, weight, hometown, birthdate, birthplace, twitter, position, jersey)
       VALUES (
@@ -185,7 +188,7 @@ async function loadPlayerData(verbose) {
         ${getBirthdateFromAgeString(playerInfo.find('.age')[0].children[1].data)},
         "${birthplace}",
         "${twitter}",
-        "${titleOverlay.find('.position')[0].children[0].data}",
+        "${position}",
         ${jersey}
       );
       `;
@@ -250,24 +253,44 @@ async function loadPlayerData(verbose) {
       if (verbose) {
         console.info(`Processing player id ${JSON.stringify(playerid)} for match id ${JSON.stringify(matchid)}`);
       }
-      db.run(`
-        INSERT INTO playerMatchLog (playerid, matchid, result, appearance, minutes, goals, assists, shots, shotsongoal, foulscommitted, foulsssuffered, yellows, reds)
-        VALUES (
-          ${playerid.playerid},
-          ${matchid.matchid},
-          "${result}",
-          "${safeGet(row, 'children[3].children[0].data')}",
-          ${safeGet(row, 'children[4].children[0].data')},
-          ${safeGet(row, 'children[5].children[0].data')},
-          ${safeGet(row, 'children[6].children[0].data')},
-          ${safeGet(row, 'children[7].children[0].data')},
-          ${safeGet(row, 'children[8].children[0].data')},
-          ${safeGet(row, 'children[9].children[0].data')},
-          ${safeGet(row, 'children[10].children[0].data')},
-          ${safeGet(row, 'children[11].children[0].data')},
-          ${safeGet(row, 'children[12].children[0].data')}
-        )
-      `);
+      if (position.includes('Goalkeeper')) {
+        db.run(`
+          INSERT INTO goalkeeperMatchLog (playerid, matchid, result, appearance, minutes, goalsfor, goalsagainst, shotsongoal, saves, penaltykicksagainst, penaltykickgoals, penaltykicksaves)
+          VALUES (
+            ${playerid.playerid},
+            ${matchid.matchid},
+            "${result}",
+            "${safeGet(row, 'children[3].children[0].data')}",
+            ${safeGet(row, 'children[4].children[0].data')},
+            ${safeGet(row, 'children[5].children[0].data')},
+            ${safeGet(row, 'children[6].children[0].data')},
+            ${safeGet(row, 'children[7].children[0].data')},
+            ${safeGet(row, 'children[8].children[0].data')},
+            ${safeGet(row, 'children[9].children[0].data')},
+            ${safeGet(row, 'children[10].children[0].data')},
+            ${safeGet(row, 'children[11].children[0].data')}
+          )
+        `);
+      } else {
+        db.run(`
+          INSERT INTO outfieldPlayerMatchLog (playerid, matchid, result, appearance, minutes, goals, assists, shots, shotsongoal, foulscommitted, foulsssuffered, yellows, reds)
+          VALUES (
+            ${playerid.playerid},
+            ${matchid.matchid},
+            "${result}",
+            "${safeGet(row, 'children[3].children[0].data')}",
+            ${safeGet(row, 'children[4].children[0].data')},
+            ${safeGet(row, 'children[5].children[0].data')},
+            ${safeGet(row, 'children[6].children[0].data')},
+            ${safeGet(row, 'children[7].children[0].data')},
+            ${safeGet(row, 'children[8].children[0].data')},
+            ${safeGet(row, 'children[9].children[0].data')},
+            ${safeGet(row, 'children[10].children[0].data')},
+            ${safeGet(row, 'children[11].children[0].data')},
+            ${safeGet(row, 'children[12].children[0].data')}
+          )
+        `);
+      }
     });
   }
 }

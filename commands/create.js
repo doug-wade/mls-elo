@@ -15,14 +15,15 @@ module.exports = async (argv) => {
 
   await db.open(fp, { Promise });
   await Promise.all([
-    db.run(`DROP TABLE IF EXISTS teams`),
-    db.run(`DROP TABLE IF EXISTS matches`),
-    db.run(`DROP TABLE IF EXISTS competitions`),
-    db.run(`DROP TABLE IF EXISTS rankings`),
-    db.run(`DROP TABLE IF EXISTS valuations`),
-    db.run(`DROP TABLE IF EXISTS players`),
-    db.run(`DROP TABLE IF EXISTS playerMatchLog`),
-  ]);
+    'teams',
+    'matches',
+    'competitions',
+    'rankings',
+    'valuations',
+    'players',
+    'outfieldPlayerMatchLog',
+    'goalkeeperMatchLog',
+  ].map(table => db.run(`DROP TABLE IF EXISTS ${table}`)));
   await Promise.all([
     db.run(`CREATE TABLE teams (
       teamid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -82,7 +83,7 @@ module.exports = async (argv) => {
       position TEXT NOT NULL,
       jersey INTEGER
     );`),
-    db.run(`CREATE TABLE playerMatchLog (
+    db.run(`CREATE TABLE outfieldPlayerMatchLog (
       playerid INTEGER NOT NULL,
       matchid INTEGER NOT NULL,
       result TEXT NOT NULL,
@@ -96,6 +97,23 @@ module.exports = async (argv) => {
       foulsssuffered INTEGER NOT NULL,
       yellows INTEGER NOT NULL,
       reds INTEGER NOT NULL,
+      FOREIGN KEY(playerid) REFERENCES players(playerid),
+      FOREIGN KEY(matchid) REFERENCES match(matchid),
+      PRIMARY KEY (playerid, matchid)
+    );`),
+    db.run(`CREATE TABLE goalkeeperMatchLog (
+      playerid INTEGER NOT NULL,
+      matchid INTEGER NOT NULL,
+      result TEXT NOT NULL,
+      appearance TEXT NOT NULL,
+      minutes INTEGER NOT NULL,
+      goalsfor INTEGER NOT NULL,
+      goalsagainst INTEGER NOT NULL,
+      shotsongoal INTEGER NOT NULL,
+      saves INTEGER NOT NULL,
+      penaltykicksagainst INTEGER NOT NULL,
+      penaltykickgoals INTEGER NOT NULL,
+      penaltykicksaves INTEGER NOT NULL,
       FOREIGN KEY(playerid) REFERENCES players(playerid),
       FOREIGN KEY(matchid) REFERENCES match(matchid),
       PRIMARY KEY (playerid, matchid)
