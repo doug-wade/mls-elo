@@ -108,8 +108,8 @@ async function predictMatchByName(hometeam, awayteam) {
 
 function predictMatch({homeElo, awayElo, homeName, awayName}) {
   if ((homeElo + 100) > awayElo) {
-    console.info(`I predict ${homeName} will win.`);
+    console.info(`I predict ${homeName} will win over ${awayName}.`);
   } else {
-    console.info(`I predict ${awayName} will win.`)
+    console.info(`I predict ${awayName} will win over ${homeName}.`)
   }
 }
