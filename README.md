@@ -6,30 +6,30 @@ Calculates [ELO rankings](https://en.wikipedia.org/wiki/Elo_rating_system) for [
 
 ```sh
 » mls-elo standings
-Standings as of 2017-7-22
+ELO Standings as of 2017-8-13
 
-1.) FC Dallas (1379)
-2.) Toronto FC (1379)
-3.) New York City FC (1369)
-4.) Chicago Fire (1362)
-5.) Atlanta United (1359)
-6.) Red Bull New York (1346)
-7.) Sporting Kansas City (1331)
-8.) Seattle Sounders (1311)
-9.) Vancouver Whitecaps (1308)
-10.) Houston Dynamo (1307)
-11.) Columbus Crew (1282)
-12.) Montreal Impact (1269)
-13.) Philadelphia Union (1254)
-14.) Real Salt Lake (1254)
-15.) New England Revolution (1253)
-16.) Portland Timbers (1253)
-17.) Orlando United (1252)
-18.) Colorado Rapids (1248)
-19.) San Jose Earthquakes (1248)
-20.) LA Galaxy (1240)
-21.) DC United (1206)
-22.) Minnesota United (1194)
+1.) Toronto FC (1402)
+2.) Seattle Sounders (1369)
+3.) New York City FC (1367)
+4.) Atlanta United (1351)
+5.) Red Bull New York (1343)
+6.) Chicago Fire (1342)
+7.) Sporting Kansas City (1325)
+8.) Houston Dynamo (1315)
+9.) FC Dallas (1313)
+10.) Montreal Impact (1313)
+11.) Vancouver Whitecaps (1304)
+12.) Portland Timbers (1290)
+13.) Columbus Crew (1281)
+14.) New England Revolution (1269)
+15.) Real Salt Lake (1260)
+16.) Orlando United (1247)
+17.) San Jose Earthquakes (1246)
+18.) Philadelphia Union (1241)
+19.) Colorado Rapids (1241)
+20.) LA Galaxy (1212)
+21.) Minnesota United (1188)
+22.) DC United (1169)
 ```
 
 ## Getting started
