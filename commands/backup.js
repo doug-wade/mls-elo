@@ -9,6 +9,6 @@ module.exports = async (argv) => {
     console.info(`backing up database ${dbPath} to ${to}`);
   }
 
-  fs.mkdirp(untildify(path.basename(to)));
+  fs.mkdirp(untildify(path.dirname(to)));
   fs.copy(untildify(dbPath), untildify(to));
 }
