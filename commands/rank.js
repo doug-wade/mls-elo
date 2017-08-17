@@ -16,7 +16,9 @@ module.exports = async (argv) => {
   const startElo = 1300;
   const startTrueskillSigma = 25 / 3;
   const startTrueskillMu = 25;
-  console.log(`seeding table with start elo ${startElo} and trueskill sigma: ${startTrueskillSigma} mu: ${startTrueskillMu} on date ${startDate}`);
+  if (verbose) {
+    console.info(`seeding table with start elo ${startElo} and trueskill sigma: ${startTrueskillSigma} mu: ${startTrueskillMu} on date ${startDate}`);
+  }
   await Promise.all(teams.map(team => db.run(`
     INSERT INTO rankings (rankingteamid, elo, trueskillsigma, trueskillmu, date) VALUES (
       (SELECT teamid FROM teams WHERE teams.abbreviation = "${team.abbreviation}"),
@@ -39,7 +41,9 @@ module.exports = async (argv) => {
     where matches.homegoals is not null
     order by date ASC
   `);
-  console.log(`processing ${matches.length} matches`);
+  if (verbose) {
+    console.info(`processing ${matches.length} matches`);
+  }
   for (const match of matches) {
     const awayranking = await db.get(`
       select
@@ -82,11 +86,13 @@ module.exports = async (argv) => {
     let homeElo, awayElo, homeTrueskill, awayTrueskill;
     if (match.homegoals < match.awaygoals) {
       homeElo = updateElo({
+        verbose,
         match,
         won: false,
         isHome: true
       });
       awayElo = updateElo({
+        verbose,
         match,
         won: true,
         isHome: false
@@ -101,11 +107,13 @@ module.exports = async (argv) => {
       };
     } else if (match.homegoals === match.awaygoals) {
       homeElo = updateElo({
+        verbose,
         match,
         won: false,
         isHome: true
       });
       awayElo = updateElo({
+        verbose,
         match,
         won: false,
         isHome: false
@@ -120,11 +128,13 @@ module.exports = async (argv) => {
       };
     } else {
       homeElo = updateElo({
+        verbose,
         match,
         won: true,
         isHome: true
       });
       awayElo = updateElo({
+        verbose,
         match,
         won: false,
         isHome: false
@@ -158,12 +168,16 @@ module.exports = async (argv) => {
         )
       `)
     ]);
-    console.log(`finished processing ${match.hometeam} vs ${match.awayteam} on ${match.date}`);
+    if (verbose) {
+      console.info(`finished processing ${match.hometeam} vs ${match.awayteam} on ${match.date}`);
+    }
   }
 }
 
-function updateElo({match, isHome, won}) {
-  console.log(`${JSON.stringify(match)} ${isHome} ${won}`);
+function updateElo({match, isHome, won, verbose}) {
+  if (verbose) {
+    console.info(`${JSON.stringify(match)} ${isHome} ${won}`);
+  }
   let priorElo, opponentPriorElo;
   if (isHome) {
     priorElo = match.homeranking;
@@ -173,7 +187,9 @@ function updateElo({match, isHome, won}) {
     opponentPriorElo = match.homeranking;
   }
   const k = match.k;
-  console.log(`priorElo ${priorElo} opponentPriorElo ${opponentPriorElo} k ${k}`);
+  if (verbose) {
+    console.info(`priorElo ${priorElo} opponentPriorElo ${opponentPriorElo} k ${k}`);
+  }
 
   const eloDifference = priorElo - opponentPriorElo;
   let homeAdjustedEloDifference;
@@ -184,7 +200,9 @@ function updateElo({match, isHome, won}) {
   }
   const x = homeAdjustedEloDifference / 200;
   const sexp = 1 / (1 + Math.pow(10, -x/2));
-  console.log(`eloDifference ${eloDifference} x ${x} sexp ${sexp}`);
+  if (verbose) {
+    console.info(`eloDifference ${eloDifference} x ${x} sexp ${sexp}`);
+  }
 
   let sact;
   if (won) {
@@ -208,6 +226,8 @@ function updateElo({match, isHome, won}) {
     }
     sact = (results[losingGoals][goalDifferential] * .01);
   }
-  console.log(`sact ${sact} returning ${priorElo + (k * (sact - sexp))}`);
+  if (verbose) {
+    console.info(`sact ${sact} returning ${priorElo + (k * (sact - sexp))}`);
+  }
   return priorElo + (k * (sact - sexp));
 }

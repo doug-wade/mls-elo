@@ -9,5 +9,5 @@ module.exports = async (argv) => {
   await db.open(dbPath, { Promise });
 
   const result = await db.all(query);
-  console.log(result);
+  console.info(result);
 }

@@ -16,7 +16,6 @@ module.exports = async (argv) => {
   for (let indexPage of playerIndexPages) {
     const $ = cheerio.load(indexPage);
     const playerDivs = $('#center_content > div.ct_wrapper > div:nth-child(6) > ul > li.row');
-    console.log(`got ${playerDivs.length} playerDivs`);
 
     const playerPageData = [];
     playerDivs.each((i, div) => {

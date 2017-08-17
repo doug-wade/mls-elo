@@ -31,9 +31,9 @@ module.exports = async (argv) => {
       ORDER BY elo DESC
     `);
 
-    console.log(`ELO Standings as of ${standingsDate.toLocaleDateString()}\n`);
+    console.info(`ELO Standings as of ${standingsDate.toLocaleDateString()}\n`);
     eloStandings.forEach((standing, i) => {
-      console.log(`${i + 1}.) ${standing.teamname} (${Math.round(standing.elo)})`);
+      console.info(`${i + 1}.) ${standing.teamname} (${Math.round(standing.elo)})`);
     });
   }
 
@@ -51,9 +51,9 @@ module.exports = async (argv) => {
       ORDER BY trueskillmu DESC
     `);
 
-    console.log(`\n\nTrueSkill Standings as of ${standingsDate.toLocaleDateString()}\n`);
+    console.info(`\n\nTrueSkill Standings as of ${standingsDate.toLocaleDateString()}\n`);
     trueskillStandings.forEach((standing, i) => {
-      console.log(`${i + 1}.) ${standing.teamname} (${standing.trueskillmu})`);
+      console.info(`${i + 1}.) ${standing.teamname} (${standing.trueskillmu})`);
     });
   }
 }

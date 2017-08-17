@@ -220,8 +220,20 @@ async function loadPlayerData(verbose) {
       if (!matchid) {
         // Player data includes MLS Cup statisitics, meaning we can extract mls
         // cup matches from them!
-        debugger;
-        const [awaygoals, homegoals] = (result.split(' ')[1]).split('-');
+        if (date < 0) {
+          debugger;
+        }
+        let [awaygoals, homegoals] = (result.split(' ')[1]).split('-');
+        if (homegoals.includes('(')) {
+          /// It's a tie.  Add the penalties to the total goals to make rankings work
+          homegoals = homegoals.replace(')', '+');
+          homegoals = homegoals.replace('(', '');
+          homegoals = eval(homegoals);
+
+          awaygoals = awaygoals.replace(')', '');
+          awaygoals = awaygoals.replace('(', '+');
+          awaygoals = eval(awaygoals);
+        }
         db.run(`
           INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date)
           VALUES (

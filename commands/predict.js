@@ -14,7 +14,7 @@ module.exports = async (argv) => {
   // pop the command name
   _.shift();
   if (!_[1]) {
-    console.log(`Predicting from now until ${_[0]}`);
+    console.info(`Predicting from now until ${_[0]}`);
     await predictMatchesByDate(_[0]);
   } else {
     let hometeam, awayteam;
@@ -108,8 +108,8 @@ async function predictMatchByName(hometeam, awayteam) {
 
 function predictMatch({homeElo, awayElo, homeName, awayName}) {
   if ((homeElo + 100) > awayElo) {
-    console.log(`I predict ${homeName} will win.`);
+    console.info(`I predict ${homeName} will win.`);
   } else {
-    console.log(`I predict ${awayName} will win.`)
+    console.info(`I predict ${awayName} will win.`)
   }
 }

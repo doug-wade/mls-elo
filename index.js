@@ -9,7 +9,7 @@ const predictCommand = require('./commands/predict');
 const queryCommand = require('./commands/query');
 
 process.on('unhandledRejection', (reason) => {
-    console.log('Reason: ' + reason);
+    console.error('Reason: ' + reason);
 });
 
 const yargs = require('yargs') // eslint-disable-line
