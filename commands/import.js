@@ -3,6 +3,7 @@ const db = require('sqlite');
 const fs = require('fs-extra');
 const safeGet = require ('safe-get');
 
+const ccl = require('../data/ccl');
 const competitions = require('../data/competitions');
 const teams = require('../data/teams');
 const valuations = require('../data/valuations');
@@ -57,6 +58,20 @@ async function loadCheckedInData(verbose) {
     });
   });
   await Promise.all(valuationPromises);
+
+  await Promise.all(ccl.map(cclmatch => {
+    const insertQuery = `
+      INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date) VALUES (
+      (SELECT teamid FROM teams where abbreviation = "${cclmatch.home}"),
+      (SELECT teamid FROM teams where abbreviation = "${cclmatch.away}"),
+      (SELECT competitionid FROM competitions where competitionname = "${competitions[5].name}"),
+      ${cclmatch.homeGoals},
+      ${cclmatch.awayGoals},
+      ${cclmatch.date}
+    )`;
+    console.log(insertQuery);
+    return db.run(insertQuery);
+  }));
 }
 
 async function loadFormData(verbose, directory) {

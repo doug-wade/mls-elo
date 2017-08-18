@@ -1,0 +1,16 @@
+module.exports = [
+  { home: 'TOR', away: 'RSL', homeGoals: 1, awayGoals: 1, date: (new Date('2010-9-28')).getTime()},
+  { home: 'CLB', away: 'RSL', homeGoals: 0, awayGoals: 0, date: (new Date('2011-2-22')).getTime()},
+  { home: 'RSL', away: 'CLB', homeGoals: 4, awayGoals: 1, date: (new Date('2011-3-1')).getTime()},
+  { home: 'DAL', away: 'TOR', homeGoals: 0, awayGoals: 3, date: (new Date('2011-10-18')).getTime()},
+  { home: 'TOR', away: 'LA', homeGoals: 2, awayGoals: 2, date: (new Date('2012-3-7')).getTime()},
+  { home: 'LA', away: 'TOR', homeGoals: 1, awayGoals: 2, date: (new Date('2012-3-14')).getTime()},
+  { home: 'MTL', away: 'NY', homeGoals: 1, awayGoals: 0, date: (new Date('2014-9-17')).getTime()},
+  { home: 'NY', away: 'MTL', homeGoals: 1, awayGoals: 1, date: (new Date('2014-10-22')).getTime()},
+  { home: 'VAN', away: 'SEA', homeGoals: 1, awayGoals: 1, date: (new Date('2015-8-5')).getTime()},
+  { home: 'SEA', away: 'VAN', homeGoals: 3, awayGoals: 1, date: (new Date('2015-9-23')).getTime()},
+  { home: 'VAN', away: 'SKC', homeGoals: 3, awayGoals: 0, date: (new Date('2016-8-3')).getTime()},
+  { home: 'SKC', away: 'VAN', homeGoals: 1, awayGoals: 2, date: (new Date('2016-9-13')).getTime()},
+  { home: 'NY', away: 'VAN', homeGoals: 1, awayGoals: 1, date: (new Date('2017-2-22')).getTime()},
+  { home: 'VAN', away: 'NY', homeGoals: 2, awayGoals: 0, date: (new Date('2017-3-2')).getTime()},
+];
