@@ -42,7 +42,7 @@ module.exports = {
     { teamname: 'Toronto FC', value: 175, revenue: 32, income: -7},
     { teamname: 'Vancouver Whitecaps', value: 125, revenue: 21, income: -6},
   ],
-  // https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=3&ved=0ahUKEwib1IzugcLVAhVH8WMKHVO0B4EQFggwMAI&url=https%3A%2F%2Fwww.forbes.com%2Fsites%2Fchrissmith%2F2016%2F09%2F07%2Fmajor-league-soccers-most-valuable-teams-2016-new-york-orlando-thrive-in-first-seasons
+  // hhttps://www.forbes.com/forbes/welcome/?toURL=https://www.forbes.com/sites/chrissmith/2016/09/07/major-league-soccers-most-valuable-teams-2016-new-york-orlando-thrive-in-first-seasons/2/&refURL=&referrer=
   2016: [
     { teamname: 'Chicago Fire', value: 177, revenue: 24, income: -6},
     { teamname: 'Colorado Rapids', value: 110, revenue: 16, income: -4},
@@ -64,5 +64,28 @@ module.exports = {
     { teamname: 'Sporting Kansas City', value: 195, revenue: 33, income: 2},
     { teamname: 'Toronto FC', value: 245, revenue: 38, income: -9},
     { teamname: 'Vancouver Whitecaps', value: 128, revenue: 20, income: -3},
+  ],
+  // https://www.forbes.com/sites/chrissmith/2017/08/16/major-league-soccers-most-valuable-teams-2/2/#68224dd9199c
+  2017: [
+    { teamname: 'Chicago Fire', value: 240, revenue: 25, income: -7},
+    { teamname: 'Colorado Rapids', value: 135, revenue: 19, income: -6},
+    { teamname: 'Columbus Crew', value: 130, revenue: 26, income: -5},
+    { teamname: 'DC United', value: 230, revenue: 25, income: -7},
+    { teamname: 'FC Dallas', value: 185, revenue: 30, income: -2},
+    { teamname: 'Houston Dynamo', value: 218, revenue: 26, income: 1},
+    { teamname: 'LA Galaxy', value: 315, revenue: 63, income: 9},
+    { teamname: 'Montreal Impact', value: 175, revenue: 25, income: -3},
+    { teamname: 'New England Revolution', value: 225, revenue: 27, income: 3},
+    { teamname: 'New York City FC', value: 275, revenue: 34, income: -9},
+    { teamname: 'Red Bull New York', value: 245, revenue: 32, income: -2},
+    { teamname: 'Orlando United', value: 272, revenue: 33, income: 2},
+    { teamname: 'Philadelphia Union', value: 170, revenue: 25, income: -2},
+    { teamname: 'Portland Timbers', value: 268, revenue: 44, income: 3},
+    { teamname: 'Real Salt Lake', value: 155, revenue: 21, income: 3},
+    { teamname: 'San Jose Earthquakes', value: 235, revenue: 34, income: 0},
+    { teamname: 'Seattle Sounders', value: 295, revenue: 53, income: 6},
+    { teamname: 'Sporting Kansas City', value: 260, revenue: 36, income: 2},
+    { teamname: 'Toronto FC', value: 280, revenue: 46, income: -9},
+    { teamname: 'Vancouver Whitecaps', value: 150, revenue: 20, income: -3},
   ]
 };
