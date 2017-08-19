@@ -14,13 +14,9 @@ process.on('unhandledRejection', (reason) => {
 
 const yargs = require('yargs') // eslint-disable-line
   .command('create', 'create the database', (yargs) => {
-    yargs.option('directory', {
-      describe: 'directory to cache data in',
-      default: '.cached'
-    })
-    .option('filename', {
-      describe: 'file to use as the database file',
-      default: 'database.sqlite'
+    yargs.option('dbPath', {
+      describe: 'database to create',
+      default: '.cached/database.sqlite'
     })
   }, createCommand)
   .command('data', 'cache data', (yargs) => {
@@ -41,13 +37,13 @@ const yargs = require('yargs') // eslint-disable-line
   }, importCommand)
   .command('rank', 'rank teams', (yargs) => {
     yargs.option('dbPath', {
-      describe: 'database to read team data from and write elo rankings to',
+      describe: 'database to get results from and write ranks to',
       default: '.cached/database.sqlite'
     })
   }, rankCommand)
   .command('standings', 'get current standings', (yargs) => {
     yargs.option('dbPath', {
-      describe: 'database to read team data from and write elo rankings to',
+      describe: 'database to get standings from',
       default: '.cached/database.sqlite'
     })
     .option('elo', {
@@ -61,7 +57,7 @@ const yargs = require('yargs') // eslint-disable-line
   }, standingsCommand)
   .command('predict', 'predict a single match', (yargs) => {
     yargs.option('dbPath', {
-      describe: 'database to read team data from and write elo rankings to',
+      describe: 'database to predict from',
       default: '.cached/database.sqlite'
     })
   }, predictCommand)
@@ -77,7 +73,7 @@ const yargs = require('yargs') // eslint-disable-line
   }, backupCommand)
   .command('query', 'run an arbitrary query against the database', (yargs) => {
     yargs.option('dbPath', {
-      describe: 'location of database to backup',
+      describe: 'location of database to query',
       default: '.cached/database.sqlite'
     })
     .option('query', {
@@ -85,6 +81,7 @@ const yargs = require('yargs') // eslint-disable-line
     })
     .demandOption('query', 'please provide a query to run')
   }, queryCommand)
+  .command('')
   .option('verbose', {
     alias: 'v',
     default: false

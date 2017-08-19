@@ -2,18 +2,18 @@ const db = require('sqlite');
 const fs = require('fs-extra');
 
 module.exports = async (argv) => {
-  const {directory, filename, verbose} = argv;
+  const {dbPath, verbose} = argv;
+  const directory = path.dirname(dbPath);
   if (verbose) {
-    console.info(`caching results html in ${directory}`);
+    console.info(`creating directory for db file in ${directory}`);
   }
   fs.mkdirp(directory);
 
-  const fp = `./${directory}/${filename}`;
   if (verbose) {
-    console.info(`creating db in ${fp}`);
+    console.info(`creating db in ${dbPath}`);
   }
 
-  await db.open(fp, { Promise });
+  await db.open(dbPath, { Promise });
   await Promise.all([
     'teams',
     'matches',
