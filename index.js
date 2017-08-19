@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const backupCommand = require('./commands/backup');
 const dataCommand = require('./commands/data');
+const fantasyCommand = require('./commands/fantasy');
 const createCommand = require('./commands/create');
 const importCommand = require('./commands/import');
 const rankCommand = require('./commands/rank');
@@ -81,7 +82,19 @@ const yargs = require('yargs') // eslint-disable-line
     })
     .demandOption('query', 'please provide a query to run')
   }, queryCommand)
-  .command('')
+  .command('fantasy', 'get fantasy points', (yargs) => {
+    yargs.option('dbPath', {
+      describe: 'location of database to query',
+      default: '.cached/database.sqlite'
+    })
+    .option('player', {
+      describe: 'the name of the player to calculate fantasy points for'
+    })
+    .option('date', {
+      describe: 'the date of the match to calculate fantasy points for'
+    })
+    .demandOption('player', 'please provide a player name')
+  }, fantasyCommand)
   .option('verbose', {
     alias: 'v',
     default: false
