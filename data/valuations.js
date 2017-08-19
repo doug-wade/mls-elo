@@ -1,6 +1,22 @@
 module.exports = {
+  // https://docs.google.com/spreadsheets/d/13iUtIkZV9S5w-ltpjbNJgv7_eocmKJvK-ksUr5vplsQ/edit#gid=0
+  2008: [
+    { teamname: 'Chicago Fire', value: 41, revenue: 16, income: 3},
+    { teamname: 'Chivas USA', value: 24, revenue: 10, income: -1},
+    { teamname: 'Colorado Rapids', value: 31, revenue: 11, income: -2},
+    { teamname: 'Columbus Crew', value: 23, revenue: 6, income: -5},
+    { teamname: 'DC United', value: 35, revenue: 13, income: -3},
+    { teamname: 'FC Dallas', value: 39, revenue: 15, income: 1},
+    { teamname: 'Houston Dynamo', value: 33, revenue: 10, income: -2},
+    { teamname: 'LA Galaxy', value: 100, revenue: 36, income: 4},
+    { teamname: 'New England Revolution', value: 27, revenue: 10, income: -2},
+    { teamname: 'Red Bull New York', value: 36, revenue: 10, income: -2},
+    { teamname: 'Real Salt Lake', value: 30, revenue: 7, income: -2},
+    { teamname: 'Sporting Kansas City', value: 22, revenue: 5, income: -3},
+    { teamname: 'Toronto FC', value: 44, revenue: 17, income: 2},
+  ],
   // https://www.forbes.com/sites/chrissmith/2013/11/20/major-league-soccers-most-valuable-teams/#59dd24419a66
-  2014: [
+  2013: [
     { teamname: 'Chicago Fire', value: 102, revenue: 24.5, income: -3.2},
     { teamname: 'Chivas USA', value: 64, revenue: 15, income: -5.5},
     { teamname: 'Colorado Rapids', value: 76, revenue: 18.1, income: -2.9},
