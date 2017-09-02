@@ -6,30 +6,30 @@ Calculates [ELO rankings](https://en.wikipedia.org/wiki/Elo_rating_system) for [
 
 ```sh
 » mls-elo standings
-ELO Standings as of 2017-8-13
+ELO Standings as of 2017-8-27
 
-1.) Toronto FC (1402)
-2.) Seattle Sounders (1369)
-3.) New York City FC (1367)
-4.) Atlanta United (1351)
-5.) Red Bull New York (1343)
-6.) Chicago Fire (1342)
-7.) Sporting Kansas City (1325)
-8.) Houston Dynamo (1315)
-9.) FC Dallas (1313)
-10.) Montreal Impact (1313)
-11.) Vancouver Whitecaps (1304)
-12.) Portland Timbers (1290)
-13.) Columbus Crew (1281)
-14.) New England Revolution (1269)
-15.) Real Salt Lake (1260)
-16.) Orlando United (1247)
-17.) San Jose Earthquakes (1246)
-18.) Philadelphia Union (1241)
-19.) Colorado Rapids (1241)
-20.) LA Galaxy (1212)
-21.) Minnesota United (1188)
-22.) DC United (1169)
+1.) Toronto FC (1447)
+2.) New York City FC (1373)
+3.) Seattle Sounders (1363)
+4.) Vancouver Whitecaps (1340)
+5.) Atlanta United (1333)
+6.) Sporting Kansas City (1331)
+7.) Portland Timbers (1321)
+8.) Montreal Impact (1318)
+9.) Red Bull New York (1316)
+10.) Houston Dynamo (1313)
+11.) Columbus Crew (1302)
+12.) FC Dallas (1287)
+13.) Chicago Fire (1278)
+14.) Real Salt Lake (1276)
+15.) New England Revolution (1252)
+16.) San Jose Earthquakes (1251)
+17.) Philadelphia Union (1242)
+18.) DC United (1227)
+19.) Orlando United (1225)
+20.) Minnesota United (1215)
+21.) Colorado Rapids (1201)
+22.) LA Galaxy (1178)
 ```
 
 ## Getting started
@@ -69,3 +69,7 @@ $ mls-elo rank
 ```
 
 This will fetch the latest data, import it into the database, and recalculate the rankings data.
+
+## Handling 12/31/1969
+
+The two busted Chicago matches took place on 6/27/2010 (at NE) and 6/9/2010 (vs Colorado)

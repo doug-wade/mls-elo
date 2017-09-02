@@ -1,5 +1,6 @@
 const db = require('sqlite');
 const fs = require('fs-extra');
+const path = require('path');
 
 module.exports = async (argv) => {
   const {dbPath, verbose} = argv;
