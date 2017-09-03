@@ -4,25 +4,36 @@ const path = require('path');
 const untildify = require('untildify');
 
 module.exports = async (argv) => {
-  const {directory, player, date, dbPath, verbose, all} = argv;
+  const {directory, player, date, dbPath, verbose, all, from, to} = argv;
   if (verbose) {
     console.info(`using database at ${dbPath} to calculate points for ${player} on ${date}`);
   }
 
   await db.open(dbPath, { Promise });
 
+  const query = `
+    select *
+    from outfieldPlayerMatchLog
+    inner join players
+    on players.playerid = outfieldPlayerMatchLog.playerid
+    inner join matches
+    on matches.matchid = outfieldPlayerMatchLog.matchid
+    ${date ?
+      'where matches.date = ' + (new Date(date)).getTime() :
+      'where matches.date BETWEEN ' + (new Date(from)).getTime() + ' AND ' + (new Date(to)).getTime()}
+    ${player !== 'all' ?
+      'and players.name = "' + player + '"':
+      ''}
+  `;
+
+  if (verbose) {
+    console.log(query);
+  }
+
   let data;
   if (player === 'all') {
     console.log('printing all fantasy point totals in order');
-    data = await db.all(`
-      select *
-      from outfieldPlayerMatchLog
-      inner join players
-      on players.playerid = outfieldPlayerMatchLog.playerid
-      inner join matches
-      on matches.matchid = outfieldPlayerMatchLog.matchid
-      where matches.date = ${(new Date(date)).getTime()}
-    `);
+    data = await db.all(query);
 
     let i = 0;
     const result = data.map(datum => {
@@ -65,18 +76,9 @@ module.exports = async (argv) => {
     });
 
   } else {
-    data = await db.get(`
-      select *
-      from outfieldPlayerMatchLog
-      inner join players
-      on players.playerid = outfieldPlayerMatchLog.playerid
-      inner join matches
-      on matches.matchid = outfieldPlayerMatchLog.matchid
-      where players.name = '${player}'
-      and matches.date = ${(new Date(date)).getTime()}
-    `);
+    data = await db.get(query);
     const points = calculatePoints(data);
-    console.log(`${data.player} scored ${points} fantasy points`);
+    console.log(`${data.name} scored ${points} fantasy points`);
   }
 }
 
