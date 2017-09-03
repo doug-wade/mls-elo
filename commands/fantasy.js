@@ -13,7 +13,7 @@ module.exports = async (argv) => {
 
   let data;
   if (player === 'all') {
-    console.log('all');
+    console.log('printing all fantasy point totals in order');
     data = await db.all(`
       select *
       from outfieldPlayerMatchLog
@@ -41,14 +41,16 @@ module.exports = async (argv) => {
       return acc;
     }, {});
 
-    Object.keys(result).reduce((acc, elem) => {
+    Object.keys(result).map(v => +v).sort((a, b) => {
+      return a - b;
+    }).reduce((acc, elem) => {
       if (verbose) {
         console.log(`elem: ${JSON.stringify(elem)}`);
       }
-      if (acc < 0) {
-        acc.unshift(elem);
-      } else {
+      if (acc >= 0) {
         acc.push(elem);
+      } else {
+        acc.unshift(elem);
       }
       return acc;
     }, []).forEach((index) => {
@@ -56,8 +58,8 @@ module.exports = async (argv) => {
       if (verbose) {
         console.log(`playerArr: ${JSON.stringify(playerArr)}`);
       }
-      playerArr.forEach(({ points, player}, i) => {
-        console.log(`${index + 1}.) ${player} scored ${points} fantasy points`);
+      playerArr.forEach(({ points, player}, j) => {
+        console.log(`${i + 1}.) ${player} scored ${points} fantasy points`);
       });
       i += playerArr.length;
     });
