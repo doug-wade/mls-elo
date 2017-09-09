@@ -80,7 +80,12 @@ const yargs = require('yargs') // eslint-disable-line
     .option('query', {
       describe: 'the query to run'
     })
-    .demandOption('query', 'please provide a query to run')
+    .option('name', {
+      describe: 'the name of a query to run'
+    })
+    .option('file', {
+      describe: 'the file to write the results to'
+    })
   }, queryCommand)
   .command('fantasy', 'get fantasy points', (yargs) => {
     yargs.option('dbPath', {
