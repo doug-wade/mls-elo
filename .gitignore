@@ -1,5 +1,6 @@
 # Application-specific
 .cached
+*.dist.js
 
 # Taken from https://github.com/github/gitignore/blob/master/Node.gitignore
 # Logs

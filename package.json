@@ -5,6 +5,7 @@
   "bin": "index.js",
   "dependencies": {
     "cheerio": "^1.0.0-rc.1",
+    "d3": "^4.10.2",
     "fs-extra": "^3.0.1",
     "safe-get": "^1.0.6",
     "sqlite": "^2.8.0",
@@ -13,12 +14,17 @@
     "yargs": "^8.0.2"
   },
   "devDependencies": {
-    "tap": "^10.7.2"
+    "koa": "^2.3.0",
+    "koa-static": "^4.0.1",
+    "tap": "^10.7.2",
+    "webpack": "^3.5.6"
   },
   "scripts": {
+    "webpack": "webpack www/index.js www/index.dist.js",
     "etl-no-network": "node ./index.js create --verbose && node ./index.js import --verbose && node ./index.js rank --verbose",
     "etl": "node ./index.js create && node ./index.js data && node ./index.js import && node ./index.js rank",
-    "test": "tap tst/*"
+    "test": "tap tst/*",
+    "start": "node www/server.js"
   },
   "keywords": [
     "soccer",
