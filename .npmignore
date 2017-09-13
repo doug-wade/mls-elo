@@ -1,0 +1,6 @@
+www/
+.cached/
+*.out
+tst/
+.git/
+node_modules/
