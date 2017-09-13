@@ -15,7 +15,7 @@ module.exports = async (argv) => {
   _.shift();
   if (!_[1]) {
     console.info(`Predicting from now until ${_[0]}`);
-    await predictMatchesByDate(_[0]);
+    await predictMatchesByDate(_[0], verbose);
   } else {
     let hometeam, awayteam;
     if (_[1] === 'at') {
@@ -28,11 +28,11 @@ module.exports = async (argv) => {
       throw new Error(`Unrecognized conjunction ${_[1]}; please use "at" or "vs"`);
     }
 
-    await predictMatchByName(hometeam, awayteam);
+    await predictMatchByName(hometeam, awayteam, verbose);
   }
 }
 
-async function predictMatchesByDate(date) {
+async function predictMatchesByDate(date, verbose) {
   const results = await db.all(`
     WITH currentelo AS (
       SELECT *
@@ -49,7 +49,8 @@ async function predictMatchesByDate(date) {
       awayteam.teamname as awayName,
       away.elo as awayElo,
       hometeam.teamname as homeName,
-      home.elo as homeElo
+      home.elo as homeElo,
+      matches.date as matchDate
     FROM matches
     INNER JOIN currentelo as away
     ON away.rankingteamid = matches.awayteam
@@ -63,15 +64,10 @@ async function predictMatchesByDate(date) {
     AND matches.date >= ${(new Date()).getTime()}
   `);
 
-  results.forEach(result => predictMatch({
-    homeElo: result.homeElo,
-    homeName: result.homeName,
-    awayElo: result.awayElo,
-    awayName: result.awayName
-  }));
+  results.forEach(result => predictMatch(result, verbose));
 }
 
-async function predictMatchByName(hometeam, awayteam) {
+async function predictMatchByName(hometeam, awayteam, verbose) {
   const homeTeamStanding = await db.get(`
     SELECT teamname, elo
     FROM rankings
@@ -103,13 +99,25 @@ async function predictMatchByName(hometeam, awayteam) {
     homeElo: homeTeamStanding.elo,
     awayName: awayTeamStanding.teamname,
     awayElo: awayTeamStanding.elo
-  });
+  }, verbose);
 }
 
-function predictMatch({homeElo, awayElo, homeName, awayName}) {
-  if ((homeElo + 100) > awayElo) {
-    console.info(`I predict ${homeName} will win over ${awayName}.`);
+function predictMatch({matchDate, homeElo, awayElo, homeName, awayName}, verbose) {
+  const probability = 1 / (10 ** (-1 * (homeElo + 100 - awayElo)/400) + 1)
+  const homeWinProbability = 1 / (Math.pow(10, (-1 * ((homeElo + 100) - awayElo)/400)) + 1);
+  const awayWinProbability = 1 / (Math.pow(10, (-1 * (awayElo - homeElo)/400)) + 1);
+  const formattedDate = (new Date(matchDate)).toLocaleDateString();
+
+  if (verbose) {
+    console.info(`\n${formattedDate}:
+      ${homeName} (${Math.round(homeElo)}) ${Math.round(homeWinProbability * 100)}% to win
+      ${awayName} (${Math.round(awayElo)}) ${Math.round(awayWinProbability * 100)}% to win`);
+  }
+  if (homeWinProbability > awayWinProbability) {
+    console.info(`I predict ${homeName} will win vs ${awayName} on ${formattedDate} (${Math.round(homeWinProbability * 100)}% to win).`)
+  } else if (homeWinProbability < awayWinProbability) {
+    console.info(`I predict ${awayName} will win at ${homeName} on ${formattedDate} (${Math.round(awayWinProbability * 100)}% to win).`)
   } else {
-    console.info(`I predict ${awayName} will win over ${homeName}.`)
+    console.info(`I predict ${homeName} will draw vs ${awayName} on ${formattedDate}`);
   }
 }
