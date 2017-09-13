@@ -2,6 +2,7 @@ const db = require('sqlite');
 const fs = require('fs-extra');
 const path = require('path');
 const untildify = require('untildify');
+const calculateFantasyPoints = require('../lib/calculateFantasyPoints');
 
 module.exports = async (argv) => {
   const {directory, player, date, dbPath, verbose, all, from, to} = argv;
@@ -11,36 +12,43 @@ module.exports = async (argv) => {
 
   await db.open(dbPath, { Promise });
 
-  const query = `
-    select *
-    from outfieldPlayerMatchLog
-    inner join players
-    on players.playerid = outfieldPlayerMatchLog.playerid
-    inner join matches
-    on matches.matchid = outfieldPlayerMatchLog.matchid
-    ${date ?
-      'where matches.date = ' + (new Date(date)).getTime() :
-      'where matches.date BETWEEN ' + (new Date(from)).getTime() + ' AND ' + (new Date(to)).getTime()}
-    ${player !== 'all' ?
-      'and players.name = "' + player + '"':
-      ''}
-  `;
-
-  if (verbose) {
-    console.log(query);
-  }
-
-  let data;
   if (player === 'all') {
     console.log('printing all fantasy point totals in order');
-    data = await db.all(query);
+    const outfielders = await db.all(`
+      select *
+      from outfieldPlayerMatchLog
+      inner join players
+      on players.playerid = outfieldPlayerMatchLog.playerid
+      inner join matches
+      on matches.matchid = outfieldPlayerMatchLog.matchid
+      ${date ?
+        'where matches.date = ' + (new Date(date)).getTime() :
+        'where matches.date BETWEEN ' + (new Date(from)).getTime() + ' AND ' + (new Date(to)).getTime()}
+      ${player !== 'all' ?
+        'and players.name = "' + player + '"':
+        ''}
+    `);
+
+    const goalkeepers = await db.all(`
+      select *
+      from outfieldPlayerMatchLog
+      inner join players
+      on players.playerid = outfieldPlayerMatchLog.playerid
+      inner join matches
+      on matches.matchid = outfieldPlayerMatchLog.matchid
+      ${date ?
+        'where matches.date = ' + (new Date(date)).getTime() :
+        'where matches.date BETWEEN ' + (new Date(from)).getTime() + ' AND ' + (new Date(to)).getTime()}
+    `);
+
+    const data = outfielders.concat(goalkeepers);
 
     let i = 0;
     const result = data.map(datum => {
       if (verbose) {
         console.log(`${JSON.stringify(datum)}`);
       }
-      return { points: calculatePoints(datum), player: datum.name };
+      return { points: calculateFantasyPoints(datum), player: datum.name };
     }).reduce((acc, elem) => {
       if (verbose) {
         console.log(`elem: ${JSON.stringify(elem)}`);
@@ -74,44 +82,42 @@ module.exports = async (argv) => {
       });
       i += playerArr.length;
     });
+    return;
+  }
 
+  const {position} = await db.get(`
+    select *
+    from players
+    where players.name = "${player}"
+  `);
+  let data
+  if (position === 'Goalkeeper') {
+    data = await db.get(`
+      select *
+      from goalkeeperMatchLog
+      inner join players
+      on players.playerid = goalkeeperMatchLog.playerid
+      inner join matches
+      on matches.matchid = goalkeeperMatchLog.matchid
+      ${date ?
+        'where matches.date = ' + (new Date(date)).getTime() :
+        'where matches.date BETWEEN ' + (new Date(from)).getTime() + ' AND ' + (new Date(to)).getTime()}
+        and players.name = "${player}"
+    `);
   } else {
-    data = await db.get(query);
-    const points = calculatePoints(data);
-    console.log(`${data.name} scored ${points} fantasy points`);
+    data = await db.get(`
+      select *
+      from outfieldPlayerMatchLog
+      inner join players
+      on players.playerid = outfieldPlayerMatchLog.playerid
+      inner join matches
+      on matches.matchid = outfieldPlayerMatchLog.matchid
+      ${date ?
+        'where matches.date = ' + (new Date(date)).getTime() :
+        'where matches.date BETWEEN ' + (new Date(from)).getTime() + ' AND ' + (new Date(to)).getTime()}
+        and players.name = "${player}"
+    `);
   }
-}
-
-function calculatePoints({ appearance, assists, foulsssuffered, goals, minutes, data, position, reds, shots, yellows }) {
-  // From https://fantasy.mlssoccer.com/a/help
-  let points = 0;
-  if (minutes >= 60) {
-    points += 2;
-  } else if (['Started', 'Subbed on '].includes(appearance)) {
-    points += 1;
-  }
-
-  if (['Defender', 'Goalkeeper', 'Defender/Midfielder', 'Midfielder/Defender'].includes(position)) {
-    points += (goals * 6);
-  } else {
-    points += (goals * 5);
-  }
-
-  points += (assists * 3);
-
-  // TODO: Add clean sheets and goals conceded (#18)
-
-  // TODO: Add penalties (#19)
-
-  // TODO: Add own goals (#20)
-
-  points -= (yellows);
-  points -= (3 * reds);
-
-  // TODO: Passing accuracy
-
-  points += Math.floor(shots / 4);
-  points += Math.floor(foulsssuffered / 4);
-
-  return points;
+  const points = calculateFantasyPoints(data);
+  console.log(`${data.name} scored ${points} fantasy points`);
 }

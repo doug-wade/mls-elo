@@ -98,6 +98,7 @@ module.exports = async (argv) => {
       foulsssuffered INTEGER NOT NULL,
       yellows INTEGER NOT NULL,
       reds INTEGER NOT NULL,
+      fantasypoints INTEGER NOT NULL,
       FOREIGN KEY(playerid) REFERENCES players(playerid),
       FOREIGN KEY(matchid) REFERENCES match(matchid),
       PRIMARY KEY (playerid, matchid)
@@ -115,6 +116,7 @@ module.exports = async (argv) => {
       penaltykicksagainst INTEGER NOT NULL,
       penaltykickgoals INTEGER NOT NULL,
       penaltykicksaves INTEGER NOT NULL,
+      fantasypoints INTEGER NOT NULL,
       FOREIGN KEY(playerid) REFERENCES players(playerid),
       FOREIGN KEY(matchid) REFERENCES match(matchid),
       PRIMARY KEY (playerid, matchid)
