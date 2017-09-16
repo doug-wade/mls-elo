@@ -18,7 +18,7 @@ tap.test('calculates outfield player points correctly', async (t) => {
   t.equals(expected, actual);
 });
 
-tap.test('calculates outfield player points correctly', async (t) => {
+tap.test('calculates goalkeeper player points correctly', async (t) => {
   const expected = 8;
   const actual = calculateFantasyPoints({
     appearance: 'Started',
@@ -31,6 +31,40 @@ tap.test('calculates outfield player points correctly', async (t) => {
     penaltykicksagainst: 0,
     penaltykickgoals: 0,
     penaltykicksaves: 0,
+  });
+  t.equals(expected, actual);
+});
+
+tap.test('calculates unused goalkeeper player points correctly', async (t) => {
+  const expected = 0;
+  const actual = calculateFantasyPoints({
+    appearance: 'Unused Sub',
+    position: 'Goalkeeper',
+    minutes: 0,
+    goalsfor: 0,
+    goalsagainst: 0,
+    shotsongoal: 0,
+    saves: 0,
+    penaltykicksagainst: 0,
+    penaltykickgoals: 0,
+    penaltykicksaves: 0,
+  });
+  t.equals(expected, actual);
+});
+
+tap.test('handles strings correctly', async (t) => {
+  const expected = 1;
+  const actual = calculateFantasyPoints({
+    appearance: 'Unused Sub',
+    position: 'Goalkeeper',
+    minutes: '0',
+    goalsfor: '0',
+    goalsagainst: '0',
+    shotsongoal: '0',
+    saves: '3',
+    penaltykicksagainst: '0',
+    penaltykickgoals: '0',
+    penaltykicksaves: '0',
   });
   t.equals(expected, actual);
 });

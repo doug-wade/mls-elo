@@ -30,10 +30,6 @@ async function loadCheckedInData(verbose) {
   const competitionsStatement = `INSERT INTO competitions (competitionname, k, m) VALUES ${
     competitions.reduce((acc, val) => `${acc} ("${val.name}", ${val.k}, ${val.m}),`, '').slice(0, -1)
   }`;
-  if (verbose) {
-    console.info(teamsStatement);
-    console.info(competitionsStatement);
-  }
   await Promise.all([
     db.run(competitionsStatement),
     db.run(teamsStatement),
@@ -52,9 +48,6 @@ async function loadCheckedInData(verbose) {
           ${year}
         );
       `;
-      if (verbose) {
-        console.info(insertStatement);
-      }
       valuationPromises.push(db.run(insertStatement));
     });
   });
@@ -70,7 +63,7 @@ async function loadCheckedInData(verbose) {
       ${cclmatch.awayGoals},
       ${cclmatch.date}
     )`;
-    console.log(insertQuery);
+
     return db.run(insertQuery);
   }));
 }
@@ -215,10 +208,6 @@ async function loadPlayerData(verbose) {
       AND twitter = "${twitter}"
       AND name = "${titleOverlay.find('.title')[0].children[0].data}";
     `;
-    if (verbose) {
-      console.info(insertQuery);
-      console.info(selectQuery);
-    }
     await db.run(insertQuery);
     playerid = await db.get(selectQuery);
 
@@ -239,9 +228,6 @@ async function loadPlayerData(verbose) {
       if (!matchid) {
         // Player data includes MLS Cup statisitics, meaning we can extract mls
         // cup matches from them!
-        if (date < 0) {
-          debugger;
-        }
         let [awaygoals, homegoals] = (result.split(' ')[1]).split('-');
         if (homegoals.includes('(')) {
           /// It's a tie.  Add the penalties to the total goals to make rankings work
@@ -253,7 +239,7 @@ async function loadPlayerData(verbose) {
           awaygoals = awaygoals.replace('(', '+');
           awaygoals = eval(awaygoals);
         }
-        db.run(`
+        const query = `
           INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date)
           VALUES (
             (SELECT teamid FROM teams where abbreviation = "${hometeam.trim()}"),
@@ -263,7 +249,8 @@ async function loadPlayerData(verbose) {
             ${awaygoals},
             ${date}
           )
-        `);
+        `;
+        db.run(query);
         matchid = await db.get(query);
       }
       if (verbose) {
@@ -279,8 +266,9 @@ async function loadPlayerData(verbose) {
         const penaltykicksagainst = safeGet(row, 'children[9].children[0].data');
         const penaltykickgoals = safeGet(row, 'children[10].children[0].data');
         const penaltykicksaves = safeGet(row, 'children[11].children[0].data');
-        const fantasypoints = calculateFantasyPoints({appearance, minutes, goalsfor, goalsagainst, shotsongoal, saves, penaltykicksagainst, penaltykickgoals, penaltykicksaves});
-        db.run(`
+        const fantasypoints = calculateFantasyPoints({appearance, position, minutes, goalsfor, goalsagainst, shotsongoal, saves, penaltykicksagainst, penaltykickgoals, penaltykicksaves});
+
+        const query = `
           INSERT INTO goalkeeperMatchLog (playerid, matchid, result, appearance, minutes, goalsfor, goalsagainst, shotsongoal, saves, penaltykicksagainst, penaltykickgoals, penaltykicksaves, fantasypoints)
           VALUES (
             ${playerid.playerid},
@@ -297,7 +285,8 @@ async function loadPlayerData(verbose) {
             ${penaltykicksaves},
             ${fantasypoints}
           )
-        `);
+        `;
+        db.run(query);
       } else {
         const appearance = safeGet(row, 'children[3].children[0].data');
         const minutes = safeGet(row, 'children[4].children[0].data');
@@ -310,6 +299,7 @@ async function loadPlayerData(verbose) {
         const yellows = safeGet(row, 'children[11].children[0].data');
         const reds = safeGet(row, 'children[12].children[0].data');
         const fantasypoints = calculateFantasyPoints({appearance, minutes, goals, assists, shots, shotsongoal, foulscommitted, foulsssuffered, yellows, reds});
+
         db.run(`
           INSERT INTO outfieldPlayerMatchLog (playerid, matchid, result, appearance, minutes, goals, assists, shots, shotsongoal, foulscommitted, foulsssuffered, yellows, reds, fantasypoints)
           VALUES (
@@ -332,4 +322,8 @@ async function loadPlayerData(verbose) {
       }
     });
   }
+}
+
+function anyIsNaN(...args) {
+  return (args.filter(e => isNaN(e))).length > 0;
 }
