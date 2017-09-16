@@ -6,7 +6,6 @@ Calculates [ELO rankings](https://en.wikipedia.org/wiki/Elo_rating_system) for [
 
 ```sh
 » mls-elo standings
-ELO Standings as of 2017-8-27
 
 ELO Standings as of 2017-9-10
 
