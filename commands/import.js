@@ -9,6 +9,7 @@ const teams = require('../data/teams');
 const valuations = require('../data/valuations');
 const getBirthdateFromAgeString = require('../lib/getBirthdateFromAgeString');
 const heightToInches = require('../lib/heightToInches');
+const calculateFantasyPoints = require('../lib/calculateFantasyPoints');
 
 module.exports = async (argv) => {
   const {dbPath, directory, verbose} = argv;
@@ -269,40 +270,63 @@ async function loadPlayerData(verbose) {
         console.info(`Processing player id ${JSON.stringify(playerid)} for match id ${JSON.stringify(matchid)}`);
       }
       if (position.includes('Goalkeeper')) {
+        const appearance = safeGet(row, 'children[3].children[0].data');
+        const minutes = safeGet(row, 'children[4].children[0].data');
+        const goalsfor = safeGet(row, 'children[5].children[0].data');
+        const goalsagainst = safeGet(row, 'children[6].children[0].data');
+        const shotsongoal = safeGet(row, 'children[7].children[0].data');
+        const saves = safeGet(row, 'children[8].children[0].data');
+        const penaltykicksagainst = safeGet(row, 'children[9].children[0].data');
+        const penaltykickgoals = safeGet(row, 'children[10].children[0].data');
+        const penaltykicksaves = safeGet(row, 'children[11].children[0].data');
+        const fantasypoints = calculateFantasyPoints({appearance, minutes, goalsfor, goalsagainst, shotsongoal, saves, penaltykicksagainst, penaltykickgoals, penaltykicksaves});
         db.run(`
-          INSERT INTO goalkeeperMatchLog (playerid, matchid, result, appearance, minutes, goalsfor, goalsagainst, shotsongoal, saves, penaltykicksagainst, penaltykickgoals, penaltykicksaves)
+          INSERT INTO goalkeeperMatchLog (playerid, matchid, result, appearance, minutes, goalsfor, goalsagainst, shotsongoal, saves, penaltykicksagainst, penaltykickgoals, penaltykicksaves, fantasypoints)
           VALUES (
             ${playerid.playerid},
             ${matchid.matchid},
             "${result}",
-            "${safeGet(row, 'children[3].children[0].data')}",
-            ${safeGet(row, 'children[4].children[0].data')},
-            ${safeGet(row, 'children[5].children[0].data')},
-            ${safeGet(row, 'children[6].children[0].data')},
-            ${safeGet(row, 'children[7].children[0].data')},
-            ${safeGet(row, 'children[8].children[0].data')},
-            ${safeGet(row, 'children[9].children[0].data')},
-            ${safeGet(row, 'children[10].children[0].data')},
-            ${safeGet(row, 'children[11].children[0].data')}
+            "${appearance}",
+            ${minutes},
+            ${goalsfor},
+            ${goalsagainst},
+            ${shotsongoal},
+            ${saves},
+            ${penaltykicksagainst},
+            ${penaltykickgoals},
+            ${penaltykicksaves},
+            ${fantasypoints}
           )
         `);
       } else {
+        const appearance = safeGet(row, 'children[3].children[0].data');
+        const minutes = safeGet(row, 'children[4].children[0].data');
+        const goals = safeGet(row, 'children[5].children[0].data');
+        const assists = safeGet(row, 'children[6].children[0].data');
+        const shots = safeGet(row, 'children[7].children[0].data')
+        const shotsongoal = safeGet(row, 'children[8].children[0].data');
+        const foulscommitted = safeGet(row, 'children[9].children[0].data');
+        const foulsssuffered = safeGet(row, 'children[10].children[0].data');
+        const yellows = safeGet(row, 'children[11].children[0].data');
+        const reds = safeGet(row, 'children[12].children[0].data');
+        const fantasypoints = calculateFantasyPoints({appearance, minutes, goals, assists, shots, shotsongoal, foulscommitted, foulsssuffered, yellows, reds});
         db.run(`
-          INSERT INTO outfieldPlayerMatchLog (playerid, matchid, result, appearance, minutes, goals, assists, shots, shotsongoal, foulscommitted, foulsssuffered, yellows, reds)
+          INSERT INTO outfieldPlayerMatchLog (playerid, matchid, result, appearance, minutes, goals, assists, shots, shotsongoal, foulscommitted, foulsssuffered, yellows, reds, fantasypoints)
           VALUES (
             ${playerid.playerid},
             ${matchid.matchid},
             "${result}",
-            "${safeGet(row, 'children[3].children[0].data')}",
-            ${safeGet(row, 'children[4].children[0].data')},
-            ${safeGet(row, 'children[5].children[0].data')},
-            ${safeGet(row, 'children[6].children[0].data')},
-            ${safeGet(row, 'children[7].children[0].data')},
-            ${safeGet(row, 'children[8].children[0].data')},
-            ${safeGet(row, 'children[9].children[0].data')},
-            ${safeGet(row, 'children[10].children[0].data')},
-            ${safeGet(row, 'children[11].children[0].data')},
-            ${safeGet(row, 'children[12].children[0].data')}
+            "${appearance}",
+            ${minutes},
+            ${goals},
+            ${assists},
+            ${shots},
+            ${shotsongoal},
+            ${foulscommitted},
+            ${foulsssuffered},
+            ${yellows},
+            ${reds},
+            ${fantasypoints}
           )
         `);
       }

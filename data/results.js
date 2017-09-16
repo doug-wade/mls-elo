@@ -1,3 +1,4 @@
+// see https://en.wikipedia.org/wiki/FIFA_Women's_World_Rankings#Actual_result_table
 module.exports = [
   [47, 15, 8, 4, 3, 2, 1],
   [50, 16, 8.9, 4.8, 3.7, 2.6, 1.5],
