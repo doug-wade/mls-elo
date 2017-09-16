@@ -55,13 +55,14 @@ async function loadCheckedInData(verbose) {
 
   await Promise.all(ccl.map(cclmatch => {
     const insertQuery = `
-      INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date) VALUES (
+      INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date, goaldifferential) VALUES (
       (SELECT teamid FROM teams where abbreviation = "${cclmatch.home}"),
       (SELECT teamid FROM teams where abbreviation = "${cclmatch.away}"),
       (SELECT competitionid FROM competitions where competitionname = "${competitions[5].name}"),
       ${cclmatch.homeGoals},
       ${cclmatch.awayGoals},
-      ${cclmatch.date}
+      ${cclmatch.date},
+      ${Math.abs(cclmatch.homeGoals - cclmatch.awayGoals)}
     )`;
 
     return db.run(insertQuery);
@@ -120,13 +121,14 @@ async function loadFormData(verbose, directory) {
               )`);
             } else {
               db.run(`
-                INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date) VALUES (
+                INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date, goaldifferential) VALUES (
                 (SELECT teamid FROM teams where location = "${location}"),
                 (SELECT teamid FROM teams where abbreviation = "${abbreviation}"),
                 (SELECT competitionid FROM competitions where competitionname = "${competitions[3].name}"),
                 ${goals},
                 ${opponentGoals},
-                ${date}
+                ${date},
+                ${Math.abs(goals - opponentGoals)}
               )`);
             }
           }
@@ -240,14 +242,15 @@ async function loadPlayerData(verbose) {
           awaygoals = eval(awaygoals);
         }
         const query = `
-          INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date)
+          INSERT INTO matches (hometeam, awayteam, matchcompetition, homegoals, awaygoals, date, goaldifferential)
           VALUES (
             (SELECT teamid FROM teams where abbreviation = "${hometeam.trim()}"),
             (SELECT teamid FROM teams where abbreviation = "${awayteam.trim()}"),
             (SELECT competitionid FROM competitions where competitionname = "${competitions[4].name}"),
             ${homegoals},
             ${awaygoals},
-            ${date}
+            ${date},
+            ${Math.abs(homegoals - awaygoals)}
           )
         `;
         db.run(query);

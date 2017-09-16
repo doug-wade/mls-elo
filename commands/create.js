@@ -59,6 +59,7 @@ module.exports = async (argv) => {
       homegoals INTEGER,
       awaygoals INTEGER,
       date INTEGER NOT NULL,
+      goaldifferential INTEGER,
       FOREIGN KEY(hometeam) REFERENCES teams(teamid),
       FOREIGN KEY(awayteam) REFERENCES teams(teamid),
       FOREIGN KEY(matchcompetition) REFERENCES competitions(competitionid)
