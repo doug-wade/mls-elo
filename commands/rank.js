@@ -3,6 +3,7 @@ const fs = require('fs-extra');
 const trueskill = require('trueskill');
 const teams = require('../data/teams');
 const updateElo = require('../lib/updateElo');
+const getStartDate = require('../lib/getStartDate');
 
 module.exports = async (argv) => {
   const {dbPath, verbose} = argv;
@@ -12,7 +13,7 @@ module.exports = async (argv) => {
 
   await db.open(dbPath, { Promise });
 
-  const startDate = new Date('December 11, 1973').getTime();
+  const startDate = getStartDate();
   const startElo = 1300;
   const startTrueskillSigma = 25 / 3;
   const startTrueskillMu = 25;

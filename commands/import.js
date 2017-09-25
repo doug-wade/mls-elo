@@ -10,6 +10,10 @@ const valuations = require('../data/valuations');
 const getBirthdateFromAgeString = require('../lib/getBirthdateFromAgeString');
 const heightToInches = require('../lib/heightToInches');
 const calculateFantasyPoints = require('../lib/calculateFantasyPoints');
+const getWeekOfYear = require('../lib/getWeekOfYear');
+const getStartDate = require('../lib/getStartDate');
+
+const ONE_DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
 module.exports = async (argv) => {
   const {dbPath, directory, verbose} = argv;
@@ -18,6 +22,7 @@ module.exports = async (argv) => {
     console.info(`getting connection to database ${dbPath}`);
   }
   await db.open(dbPath, { Promise });
+  await loadDateDimension(verbose);
   await loadCheckedInData(verbose);
   await loadFormData(verbose, directory);
   await loadPlayerData(verbose);
@@ -324,6 +329,29 @@ async function loadPlayerData(verbose) {
         `);
       }
     });
+  }
+}
+
+function loadDateDimension(verbose) {
+  let cursor = getStartDate();
+  while (cursor <= (new Date()).getTime()) {
+    const date = new Date(cursor);
+    const week = getWeekOfYear(date)[1];
+
+    const q = `
+      INSERT INTO dates (date, day, week, month, year, string)
+      VALUES (
+        ${cursor},
+        ${date.getDay()},
+        ${week},
+        ${date.getMonth()},
+        ${date.getFullYear()},
+        ${date.toLocaleDateString()}
+      )
+    `;
+    console.log(q);
+    db.run (q);
+    cursor += ONE_DAY_IN_MILLISECONDS;
   }
 }
 

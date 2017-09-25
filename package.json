@@ -4,6 +4,7 @@
   "description": "Calculate ELO rankings for Major League Soccer",
   "bin": "index.js",
   "dependencies": {
+    "chalk": "^2.1.0",
     "cheerio": "^1.0.0-rc.1",
     "css-loader": "^0.28.7",
     "d3": "^4.10.2",

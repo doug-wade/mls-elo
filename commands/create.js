@@ -24,6 +24,7 @@ module.exports = async (argv) => {
     'players',
     'outfieldPlayerMatchLog',
     'goalkeeperMatchLog',
+    'dates',
   ].map(table => db.run(`DROP TABLE IF EXISTS ${table}`)));
   await Promise.all([
     db.run(`CREATE TABLE teams (
@@ -121,6 +122,14 @@ module.exports = async (argv) => {
       FOREIGN KEY(playerid) REFERENCES players(playerid),
       FOREIGN KEY(matchid) REFERENCES match(matchid),
       PRIMARY KEY (playerid, matchid)
+    );`),
+    db.run(`CREATE TABLE dates (
+      date INTEGER PRIMARY KEY NOT NULL,
+      day INTEGER NOT NULL,
+      week INTEGER NOT NULL,
+      month INTEGER NOT NULL,
+      year INTEGER NOT NULL,
+      string TEXT NOT NULL
     );`),
   ]);
 }
