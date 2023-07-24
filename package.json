@@ -10,7 +10,7 @@
     "d3": "^4.10.2",
     "fs-extra": "^3.0.1",
     "safe-get": "^1.0.6",
-    "sqlite": "^2.8.0",
+    "sqlite": "^5.0.1",
     "style-loader": "^0.18.2",
     "trueskill": "0.0.2",
     "untildify": "^3.0.2",
