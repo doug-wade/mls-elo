@@ -11,9 +11,10 @@
     "fs-extra": "^11.2.0",
     "safe-get": "^1.0.6",
     "sqlite": "^5.0.1",
+    "sqlite3": "^5.1.7",
     "style-loader": "^0.18.2",
     "trueskill": "0.0.2",
-    "untildify": "^5.0.0",
+    "untildify": "^4.0.0",
     "yargs": "^17.7.2"
   },
   "devDependencies": {

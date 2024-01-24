@@ -1,5 +1,6 @@
 const cheerio = require('cheerio');
-const db = require('sqlite');
+const { open } = require('sqlite');
+const sqlite3 = require('sqlite3');
 const fs = require('fs-extra');
 const safeGet = require ('safe-get');
 
@@ -15,13 +16,19 @@ const getStartDate = require('../lib/getStartDate');
 
 const ONE_DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
+let db;
 module.exports = async (argv) => {
   const {dbPath, directory, verbose} = argv;
 
   if (verbose) {
     console.info(`getting connection to database ${dbPath}`);
   }
-  await db.open(dbPath, { Promise });
+
+  db = await open({
+    filename: dbPath,
+    driver: sqlite3.Database
+  });
+
   await loadDateDimension(verbose);
   await loadCheckedInData(verbose);
   await loadFormData(verbose, directory);
