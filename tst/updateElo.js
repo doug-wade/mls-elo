@@ -17,7 +17,7 @@ tap.test('calculates wins properly for home teams', async (t) => {
     won: true,
     isHome: true
   });
-  t.equals(expected, actual);
+  t.equal(expected, actual);
 });
 
 tap.test('calculates draws properly for home teams', async (t) => {
@@ -35,7 +35,7 @@ tap.test('calculates draws properly for home teams', async (t) => {
     won: false,
     isHome: true
   });
-  t.equals(expected, actual);
+  t.equal(expected, actual);
 });
 
 tap.test('calculates loses properly for home teams', async (t) => {
@@ -53,7 +53,7 @@ tap.test('calculates loses properly for home teams', async (t) => {
     won: false,
     isHome: true
   });
-  t.equals(expected, actual);
+  t.equal(expected, actual);
 });
 
 tap.test('calculates wins properly for away teams', async (t) => {
@@ -71,7 +71,7 @@ tap.test('calculates wins properly for away teams', async (t) => {
     won: true,
     isHome: false
   });
-  t.equals(expected, actual);
+  t.equal(expected, actual);
 });
 
 tap.test('calculates draws properly for away teams', async (t) => {
@@ -89,7 +89,7 @@ tap.test('calculates draws properly for away teams', async (t) => {
     won: false,
     isHome: false
   });
-  t.equals(expected, actual);
+  t.equal(expected, actual);
 });
 
 tap.test('calculates loses properly for away teams', async (t) => {
@@ -107,5 +107,5 @@ tap.test('calculates loses properly for away teams', async (t) => {
     won: false,
     isHome: false
   });
-  t.equals(expected, actual);
+  t.equal(expected, actual);
 });

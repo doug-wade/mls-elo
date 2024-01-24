@@ -15,7 +15,7 @@ tap.test('calculates outfield player points correctly', async (t) => {
     shots: 5,
     yellows: 0
   });
-  t.equals(expected, actual);
+  t.equal(expected, actual);
 });
 
 tap.test('calculates goalkeeper player points correctly', async (t) => {
@@ -32,7 +32,7 @@ tap.test('calculates goalkeeper player points correctly', async (t) => {
     penaltykickgoals: 0,
     penaltykicksaves: 0,
   });
-  t.equals(expected, actual);
+  t.equal(expected, actual);
 });
 
 tap.test('calculates unused goalkeeper player points correctly', async (t) => {
@@ -49,7 +49,7 @@ tap.test('calculates unused goalkeeper player points correctly', async (t) => {
     penaltykickgoals: 0,
     penaltykicksaves: 0,
   });
-  t.equals(expected, actual);
+  t.equal(expected, actual);
 });
 
 tap.test('handles strings correctly', async (t) => {
@@ -66,5 +66,5 @@ tap.test('handles strings correctly', async (t) => {
     penaltykickgoals: '0',
     penaltykicksaves: '0',
   });
-  t.equals(expected, actual);
+  t.equal(expected, actual);
 });
