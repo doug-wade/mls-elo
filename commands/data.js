@@ -59,9 +59,9 @@ function getPage({url, stream}) {
 }
 
 async function fetchFormPages(verbose, directory) {
-  for (let year = 1996; year <= 2017; year++) {
+  for (let year = 1996; year <= 2024; year++) {
     const filename = `${directory}/${year}.html`;
-    const url = `https://www.mlssoccer.com/results/${year}`;
+    const url = `https://www.mlssoccer.com/standings/form-guide/${year}`;
     if (verbose) {
       console.info(`fetching year ${year} from url ${url} and writing to ${filename}`);
     }

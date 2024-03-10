@@ -1,9 +1,10 @@
-const db = require('sqlite');
+const { open } = require('sqlite');
+const sqlite3 = require('sqlite3');
 const fs = require('fs-extra');
 const path = require('path');
 
 module.exports = async (argv) => {
-  const {dbPath, verbose} = argv;
+  const { dbPath, verbose } = argv;
   const directory = path.dirname(dbPath);
   if (verbose) {
     console.info(`creating directory for db file in ${directory}`);
@@ -14,7 +15,11 @@ module.exports = async (argv) => {
     console.info(`creating db in ${dbPath}`);
   }
 
-  await db.open(dbPath, { Promise });
+  const db = await open({
+    filename: dbPath,
+    driver: sqlite3.Database
+  });
+
   await Promise.all([
     'teams',
     'matches',
@@ -26,6 +31,7 @@ module.exports = async (argv) => {
     'goalkeeperMatchLog',
     'dates',
   ].map(table => db.run(`DROP TABLE IF EXISTS ${table}`)));
+
   await Promise.all([
     db.run(`CREATE TABLE teams (
       teamid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,

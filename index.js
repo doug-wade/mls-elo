@@ -8,12 +8,14 @@ const rankCommand = require('./commands/rank');
 const standingsCommand = require('./commands/standings');
 const predictCommand = require('./commands/predict');
 const queryCommand = require('./commands/query');
+const yargs = require('yargs/yargs')
+const { hideBin } = require('yargs/helpers')
 
 process.on('unhandledRejection', (reason, p) => {
   console.error('Unhandled Rejection at:', p, 'reason:', reason);
 });
 
-const yargs = require('yargs') // eslint-disable-line
+yargs(hideBin(process.argv))
   .command('create', 'create the database', (yargs) => {
     yargs.option('dbPath', {
       describe: 'database to create',
